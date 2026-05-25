@@ -1,0 +1,31 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+% Metadata is separated from body content.
+\input{content/article/info}
+
+\begin{document}
+
+\maketitle
+
+% Front matter
+\input{content/article/abstract}
+
+% Main content
+\input{content/article/body}
+
+% Back matter
+\input{content/article/appendix}
+
+\bibliographystyle{plain}
+\bibliography{content/article/reference}
+
+\end{document}
+

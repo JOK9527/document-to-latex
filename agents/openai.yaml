@@ -1,0 +1,4 @@
+interface:
+  display_name: "Document to LaTeX"
+  short_description: "Convert documents into LaTeX projects"
+  default_prompt: "Use $document-to-latex to convert this document into a structured, compilable LaTeX project."

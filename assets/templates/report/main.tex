@@ -1,0 +1,31 @@
+\documentclass[11pt]{report}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+% Metadata is separated from chapter content.
+\input{content/report/info}
+
+\begin{document}
+
+\maketitle
+
+% Front matter
+\input{content/report/abstract}
+
+% Main matter
+\input{content/report/chapters}
+
+% Back matter
+\input{content/report/appendix}
+
+\bibliographystyle{plain}
+\bibliography{content/report/reference}
+
+\end{document}
+

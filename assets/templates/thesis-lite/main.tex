@@ -1,0 +1,32 @@
+\documentclass[UTF8,11pt]{ctexrep}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+% Metadata is separated from chapter content.
+\input{content/thesis/undergraduate/info}
+
+\begin{document}
+
+\maketitle
+
+% Front matter
+\input{content/thesis/undergraduate/abstract}
+\input{content/thesis/undergraduate/acknowledgements}
+
+% Main matter
+\input{content/thesis/undergraduate/chapters}
+
+% Back matter
+\input{content/thesis/undergraduate/appendix}
+
+\bibliographystyle{plain}
+\bibliography{content/thesis/undergraduate/reference}
+
+\end{document}
+
