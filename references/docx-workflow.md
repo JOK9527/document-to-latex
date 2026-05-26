@@ -8,13 +8,13 @@ Convert the editable Word source into a maintainable LaTeX project. Do not simpl
 
 ## Preflight
 
-Ask one compact question before conversion unless already answered:
+For this `doc2latex for nwpuers` branch, use the NWPU-specific preflight from `references/nwpuers-workflow.md`:
 
 ```text
-Before I start: do you have a LaTeX template or formatting guide to use? If not, I can choose a default. Should I prioritize strict template compliance or clean maintainable LaTeX?
+请确认论文类型：本科、硕士、博士？
 ```
 
-After this, proceed and record assumptions. Avoid stopping repeatedly for issues that can be handled as review notes.
+After this, proceed and record assumptions. Avoid stopping repeatedly for issues that can be handled as review notes. Do not ask for a LaTeX template unless the user explicitly wants to override the embedded `nwputhesis` template.
 
 ## Extraction
 
@@ -80,4 +80,4 @@ Common defects:
 
 ## Output
 
-Use the template structure or one of the default skeletons. Keep generated content out of `source/`, keep style out of chapter files, and keep review comments close to uncertain conversions.
+Use the `nwputhesis` structure created by `scripts/create_nwputhesis_project.py`. Keep generated content out of `source/`, keep style out of chapter files, and keep review comments close to uncertain conversions.

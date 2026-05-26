@@ -1,4 +1,4 @@
 interface:
-  display_name: "Document to LaTeX"
-  short_description: "Convert academic DOC/DOCX drafts into LaTeX projects"
-  default_prompt: "Use $document-to-latex to convert the DOC/DOCX academic draft into a structured, compilable LaTeX project."
+  display_name: "doc2latex for nwpuers"
+  short_description: "Convert DOCX drafts into NWPU nwputhesis projects"
+  default_prompt: "Use $doc2latex-for-nwpuers to convert this DOCX into a Northwestern Polytechnical University nwputhesis LaTeX project."

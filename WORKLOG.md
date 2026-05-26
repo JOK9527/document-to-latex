@@ -33,3 +33,29 @@ Reposition the skill as a DOC/DOCX-first academic Word to LaTeX authoring workfl
 - OMML formulas are detected but still require LaTeX reconstruction by the authoring model.
 - Complex table normalization remains review-driven.
 - PDF-only conversion is deferred until a multimodal or layout-analysis pipeline is available.
+
+## nwpuers branch - 2026-05-26
+
+### Direction
+
+Create a Northwestern Polytechnical University focused branch: `doc2latex for nwpuers`.
+
+### Decisions
+
+- Embed a trimmed copy of `1195343015/nwputhesis`.
+- Use `nwputhesis` as the default template.
+- Reduce preflight to thesis type only: undergraduate, master, or PhD.
+- Default graduate output to academic degree unless professional degree is explicitly indicated.
+- Add `scripts/create_nwputhesis_project.py` to generate clean bachelor/master/PhD projects.
+- Delete unused generated-project content during scaffold creation so undergraduate and graduate trees are not mixed.
+
+### Template Cleanup
+
+Excluded from the embedded bundle:
+
+- GitHub workflow files
+- VS Code settings
+- QQ group image
+- demo screenshot
+- verbose sample chapters
+- font submodule

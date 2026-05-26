@@ -1,55 +1,75 @@
-# document-to-latex
+# doc2latex for nwpuers
 
-`document-to-latex` is a DOC/DOCX-first Codex skill for turning academic Word drafts into structured, maintainable LaTeX projects.
+`doc2latex for nwpuers` is a Northwestern Polytechnical University focused branch of `document-to-latex`.
 
-The skill is not a PDF parser. PDF files may be used as optional visual references, but the active conversion path expects an editable Word source.
+It converts academic DOCX drafts into LaTeX projects using an embedded, trimmed copy of [`1195343015/nwputhesis`](https://github.com/1195343015/nwputhesis).
 
-## What It Handles
+## Scope
 
-- `.docx` academic papers, theses, graduation projects, and reports
-- `.doc` files when a local conversion or inspection tool is available
-- user-provided LaTeX templates, Overleaf projects, `.cls`, `.sty`, and `.def` files
-- typed formatting requirements and uploaded formatting guides
-- imperfect Word drafts with inconsistent headings, rough tables, missing captions, mixed formulas, or incomplete references
-- Chinese and English academic writing
+- Primary input: `.docx`
+- Target template: `nwputhesis`
+- Target users: NWPU undergraduate, master, and PhD students
+- PDF: optional visual reference only
 
-## Core Workflow
+This branch is not a general template selector. It assumes NWPU thesis formatting by default.
 
-1. Ask the mandatory preflight question unless the user already answered it.
-2. Preserve original materials in `source/`.
-3. Build a DOCX semantic IR with `build_docx_semantic_ir.py`.
-4. Generate and read a DOCX authoring brief.
-5. Analyze and preprocess any user template.
-6. Rewrite the content into the target LaTeX structure.
-7. Compile when possible.
-8. Run the quality gate.
-9. Report source defects, assumptions, and manual review items.
+## Preflight
 
-## Design Position
+Ask only one question before conversion unless already answered:
 
-This skill behaves like an academic editing assistant, not a format dumper. It should:
+```text
+请确认论文类型：本科、硕士、博士？
+```
 
-- understand the Word draft before writing LaTeX
-- normalize structure without inventing missing facts
-- separate content from style
-- rebuild academic tables as semantic three-line LaTeX tables instead of copying Word borders
-- use template-native commands when adapting a template
-- mark uncertain tables, formulas, captions, and references for review
-- avoid repeated mid-process questions by doing a short preflight first
+For graduate theses, default to academic degree. Ask about professional degree only when the user mentions it or the source clearly indicates it.
+
+## Workflow
+
+1. Inspect `source/` for the primary `.docx`.
+2. Ask the thesis type question if needed.
+3. Build DOCX semantic IR.
+4. Generate the DOCX authoring brief.
+5. Create the project with `scripts/create_nwputhesis_project.py`.
+6. Fill the appropriate `content/thesis/undergraduate/` or `content/thesis/graduate/` files.
+7. Use three-line tables by default.
+8. Compile when possible.
+9. Run the quality gate.
+10. Write a conversion report.
+
+## Embedded Template
+
+The embedded template lives under:
+
+```text
+assets/templates/nwputhesis/
+```
+
+The bundle is trimmed. It keeps only the files needed for conversion and compilation:
+
+- `nwputhesis.cls`
+- `infra/*.def`
+- required cover and logo assets
+- graduate authorization statement placeholder PDF
+- minimal undergraduate and graduate content skeletons
+
+Removed from the upstream template bundle:
+
+- GitHub workflow files
+- VS Code settings
+- QQ group image
+- demo screenshot
+- verbose sample chapters
+- font submodule
+
+The upstream template is GPLv3; see `assets/templates/nwputhesis/UPSTREAM_LICENSE_GPLv3`.
 
 ## Main Scripts
 
 - `scripts/detect_document.py`: source profile.
 - `scripts/build_docx_semantic_ir.py`: DOCX semantic IR and defect report.
 - `scripts/write_docx_authoring_brief.py`: AI authoring brief from DOCX IR.
-- `scripts/analyze_template.py`: LaTeX template analysis.
-- `scripts/extract_format_requirements.py`: formatting requirement extraction.
+- `scripts/create_nwputhesis_project.py`: create a clean NWPU thesis project.
 - `scripts/compile_latex.py`: local LaTeX compile helper.
 - `scripts/quality_gate.py`: delivery checks.
 - `scripts/write_conversion_report.py`: conversion report writer.
 
-## Version
-
-Current development target: `v1.1-docx`.
-
-PDF-only conversion is intentionally deferred until a multimodal or MinerU-level layout pipeline is available.

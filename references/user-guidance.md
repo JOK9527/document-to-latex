@@ -1,48 +1,39 @@
 # User Guidance
 
-Ask only for information that materially changes the output. The goal is a short preflight, then steady execution.
+This branch is for NWPU thesis conversion. Keep preflight short.
 
-## Mandatory Preflight Gate
+## Mandatory Question
 
-Do not start extraction, template adaptation, IR building, or LaTeX generation until the preflight state is explicit.
-
-Use this compact prompt:
+Ask only:
 
 ```text
-Before I start: do you have a LaTeX template or formatting guide to use? If not, I can choose a default. Should I prioritize strict template compliance or clean maintainable LaTeX?
+请确认论文类型：本科、硕士、博士？
 ```
 
-Proceed without asking only when one of these is true:
+Do not ask about LaTeX templates or general formatting preferences. The embedded `nwputhesis` template is the default.
 
-- the user has already answered the template, formatting requirement, and output-priority question
-- the user explicitly says to use defaults, decide for them, or perform a quick conversion
-- the request itself includes the template and formatting context
+## When To Ask More
+
+Ask one additional question only when:
+
+- the source is not DOCX and no conversion path is available
+- graduate degree type is ambiguous and the user explicitly mentions 专硕, 专业学位, 工程硕士, or professional degree
+- user instructions conflict with NWPU template requirements
+- required source content is missing and cannot be represented as a review item
 
 ## Avoid Mid-Process Interruptions
 
-After preflight, continue working and record manageable uncertainty in `conversion_report.md`.
+After thesis type is known, continue and record uncertainty in `conversion_report.md`.
 
 Do not stop for:
 
-- missing figure captions that can be marked for review
-- rough table structure that can be preserved with notes
-- uncertain formulas that can be kept as review items
-- placeholder metadata in a template
-- minor punctuation or spacing cleanup
+- missing figure/table captions
+- rough tables
+- uncertain formulas
+- missing student number
+- missing committee members
+- missing authorization signatures
+- placeholder accomplishments
 
-Stop and ask only when:
+These should become placeholders or review items.
 
-- no DOC/DOCX source exists
-- a `.doc` file cannot be converted or inspected locally
-- template and user instructions directly conflict in a way that changes the deliverable
-- required source content is missing
-
-## Suggested Defaults
-
-- Chinese short academic paper: `ctexart` with XeLaTeX
-- English short academic paper: `article`
-- long report: `report`
-- thesis or graduation project: `thesis-lite`
-- default priority: strict template compliance when a template exists; clean maintainable LaTeX when no template exists
-
-Record assumptions in `conversion_report.md`.

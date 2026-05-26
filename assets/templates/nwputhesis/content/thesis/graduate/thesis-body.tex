@@ -1,0 +1,29 @@
+%% Main graduate document body.
+\input{content/thesis/graduate/info}
+\addbibresource{content/thesis/graduate/reference.bib}
+\addbibresource{content/thesis/graduate/accomplishments.bib}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\input{content/thesis/graduate/committee}
+\input{content/thesis/graduate/abstract}
+\tableofcontents
+\iflistfigures{
+    \listoffigures
+    \listoftables
+}{}
+
+\mainmatter
+\input{content/thesis/graduate/chapters}
+\printbibliography
+\input{content/thesis/graduate/appendix}
+
+\backmatter
+\ifblindreview{}{\input{content/thesis/graduate/acknowledgements}}
+\input{content/thesis/graduate/accomplishments}
+\includepdf[pages=-]{content/figures/研究生学位论文使用授权声明.pdf}
+
+\end{document}
+

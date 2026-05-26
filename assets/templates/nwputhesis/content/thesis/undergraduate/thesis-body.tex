@@ -1,0 +1,22 @@
+%% Main undergraduate document body.
+\input{content/thesis/undergraduate/info}
+\addbibresource{content/thesis/undergraduate/reference.bib}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\input{content/thesis/undergraduate/abstract}
+\tableofcontents
+
+\mainmatter
+\input{content/thesis/undergraduate/chapters}
+\printbibliography
+
+\backmatter
+\ifblindreview{}{\input{content/thesis/undergraduate/acknowledgements}}
+\input{content/thesis/undergraduate/designsummary}
+\input{content/thesis/undergraduate/appendix}
+
+\end{document}
+
