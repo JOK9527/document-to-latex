@@ -47,9 +47,13 @@ IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".pdf"}
 
 def read_text(path: Path) -> str:
     try:
-        return path.read_text(encoding="utf-8")
+        return path.read_text(encoding="utf-8-sig")
     except UnicodeDecodeError:
         return path.read_text(encoding="utf-8", errors="replace")
+
+
+def load_json(path: Path) -> dict[str, Any]:
+    return json.loads(read_text(path))
 
 
 def cjk_count(text: str) -> int:
@@ -187,6 +191,51 @@ def table_blocks(text: str) -> list[str]:
     return [match.group(0) for match in pattern.finditer(text)]
 
 
+def rendered_table_count(project: Path) -> int:
+    count = 0
+    pattern = re.compile(r"\\begin\{(?:table|longtable|sidewaystable)\}")
+    for path in tex_files(project):
+        count += len(pattern.findall(read_text(path)))
+    return count
+
+
+def check_table_placeholders(project: Path) -> list[dict[str, Any]]:
+    findings: list[dict[str, Any]] = []
+    offenders: list[str] = []
+    pattern = re.compile(r"%\s*REVIEW:.*(?:table|tabular|caption|表格|表题|表注|三线表)", re.I)
+    for path in tex_files(project):
+        text = read_text(path)
+        if pattern.search(text):
+            offenders.append(str(path))
+    if offenders:
+        findings.append(
+            {
+                "severity": "warning",
+                "check": "table_placeholders",
+                "message": "Table-related REVIEW placeholders remain in LaTeX; extracted tables should be rendered, not left as comments.",
+                "paths": offenders,
+            }
+        )
+    return findings
+
+
+def check_table_coverage(project: Path, ir: dict[str, Any] | None) -> list[dict[str, Any]]:
+    findings: list[dict[str, Any]] = []
+    if not ir:
+        return findings
+    extracted = len(ir.get("tables") or [])
+    rendered = rendered_table_count(project)
+    if extracted and rendered < extracted:
+        findings.append(
+            {
+                "severity": "warning",
+                "check": "table_coverage",
+                "message": f"DOCX IR has {extracted} extracted table(s), but LaTeX appears to render only {rendered}. Missing captions are not a reason to omit tables.",
+            }
+        )
+    return findings
+
+
 def check_table_style(project: Path) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
     offenders: list[str] = []
@@ -210,11 +259,13 @@ def check_table_style(project: Path) -> list[dict[str, Any]]:
     return findings
 
 
-def run_quality_gate(project: Path) -> dict[str, Any]:
+def run_quality_gate(project: Path, ir: dict[str, Any] | None = None) -> dict[str, Any]:
     findings = []
     findings.extend(check_structure(project))
     findings.extend(check_mojibake(project))
     findings.extend(check_images(project))
+    findings.extend(check_table_coverage(project, ir))
+    findings.extend(check_table_placeholders(project))
     findings.extend(check_table_style(project))
     return {
         "schema": "document-to-latex.quality-gate.v1",
@@ -250,12 +301,14 @@ def render_markdown(result: dict[str, Any]) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run document-to-latex delivery quality checks.")
     parser.add_argument("project", help="Generated LaTeX project directory")
+    parser.add_argument("--ir", help="Optional DOCX semantic IR JSON path for coverage checks")
     parser.add_argument("--output", "-o", help="Optional JSON or Markdown report path")
     parser.add_argument("--fail-on-warning", action="store_true", help="Return non-zero when warnings are present")
     args = parser.parse_args()
 
     project = Path(args.project).resolve()
-    result = run_quality_gate(project)
+    ir = load_json(Path(args.ir)) if args.ir else None
+    result = run_quality_gate(project, ir)
     if args.output:
         output = Path(args.output)
         output.parent.mkdir(parents=True, exist_ok=True)

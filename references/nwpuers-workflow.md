@@ -95,6 +95,8 @@ Do not invent committee members, student numbers, authorization signatures, or a
 - Use `\keywordslist{...}` and `\engkeywordslist{...}`.
 - Use `biblatex` entries in `reference.bib` whenever references can be reconstructed reliably.
 - Rebuild academic tables as three-line tables using `booktabs`.
+- Render every extracted Word data table when rows and cells are available, even when the DOCX has no table caption.
+- If a table caption is missing, infer a conservative provisional caption from nearby text or table contents, then record that assumption in `conversion_report.md`.
 - Keep small and medium tables near the paragraph that discusses them.
 - Store figures in `content/figures/`.
 - Use stable semantic labels such as `fig:system-architecture`, `tab:experiment-parameters`, and `eq:control-law`.
@@ -114,3 +116,12 @@ The embedded bundle already excludes:
 
 Keep this branch focused and clean.
 
+## Quality Gate
+
+Run the quality gate with the DOCX semantic IR when available:
+
+```bash
+python scripts/quality_gate.py project --ir work/docx_semantic_ir.json --output project/quality_gate.md
+```
+
+The table coverage check should warn when the IR contains extracted tables but the generated LaTeX has fewer rendered table environments. Missing captions are review items, not a reason to leave table data as `% REVIEW` comments.

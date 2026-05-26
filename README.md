@@ -31,9 +31,9 @@ For graduate theses, default to academic degree. Ask about professional degree o
 4. Generate the DOCX authoring brief.
 5. Create the project with `scripts/create_nwputhesis_project.py`.
 6. Fill the appropriate `content/thesis/undergraduate/` or `content/thesis/graduate/` files.
-7. Use three-line tables by default.
+7. Use three-line tables by default; extracted DOCX tables must be rendered even when the original table caption is missing.
 8. Compile when possible.
-9. Run the quality gate.
+9. Run the quality gate, preferably with the DOCX semantic IR for table coverage checks.
 10. Write a conversion report.
 
 ## Embedded Template
@@ -72,4 +72,3 @@ The upstream template is GPLv3; see `assets/templates/nwputhesis/UPSTREAM_LICENS
 - `scripts/compile_latex.py`: local LaTeX compile helper.
 - `scripts/quality_gate.py`: delivery checks.
 - `scripts/write_conversion_report.py`: conversion report writer.
-

@@ -118,6 +118,8 @@ Run `scripts/write_docx_authoring_brief.py` and read the brief before writing La
 - Use template-native abstract, keyword, metadata, bibliography, appendix, acknowledgement, committee, and accomplishment files.
 - Convert clear academic tables to three-line tables using `booktabs`.
 - Do not preserve Word table border grids unless explicitly required.
+- Never omit an extracted Word data table just because it has no caption.
+- When a table lacks a caption, infer a conservative provisional caption from nearby text or the table contents, render the table, and record the assumption in `conversion_report.md`.
 - Generate missing figure/table captions only when the role is clear, and record that in the report.
 - Do not invent missing data, references, formulas, committee members, student numbers, or signatures.
 - Keep uncertain formulas and rough tables as review notes when faithful reconstruction is unsafe.
@@ -140,6 +142,5 @@ Run `scripts/write_docx_authoring_brief.py` and read the brief before writing La
 - `scripts/build_docx_semantic_ir.py`: DOCX semantic IR and defect report.
 - `scripts/write_docx_authoring_brief.py`: authoring brief from DOCX IR.
 - `scripts/compile_latex.py`: local compile helper.
-- `scripts/quality_gate.py`: delivery checks.
+- `scripts/quality_gate.py`: delivery checks, including optional DOCX IR table coverage.
 - `scripts/write_conversion_report.py`: conversion report writer.
-
