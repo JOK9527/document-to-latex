@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
-"""Create a lightweight JSON profile for a document-to-LaTeX source file."""
+"""Create a lightweight JSON profile for a DOC/DOCX-to-LaTeX source file."""
 
 from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 import zipfile
 from pathlib import Path
-
-
-TEXT_EXTENSIONS = {".md", ".markdown", ".txt", ".tex", ".html", ".htm"}
 
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -21,24 +17,6 @@ if hasattr(sys.stdout, "reconfigure"):
 
 def has_chinese(text: str) -> bool:
     return any("\u4e00" <= char <= "\u9fff" for char in text)
-
-
-def read_text_sample(path: Path, limit: int = 200_000) -> str:
-    try:
-        return path.read_text(encoding="utf-8", errors="ignore")[:limit]
-    except OSError:
-        return ""
-
-
-def profile_text(path: Path) -> dict:
-    sample = read_text_sample(path)
-    return {
-        "word_count_estimate": len(re.findall(r"\w+", sample)),
-        "has_chinese": has_chinese(sample),
-        "has_markdown_tables": bool(re.search(r"^\s*\|.+\|\s*$", sample, re.MULTILINE)),
-        "has_latex_math_markers": bool(re.search(r"(\$\$?|\\\[|\\\(|\\begin\{equation\})", sample)),
-        "has_html_tags": bool(re.search(r"<(html|body|table|img|p|h[1-6])\b", sample, re.I)),
-    }
 
 
 def profile_docx(path: Path) -> dict:
@@ -63,19 +41,6 @@ def profile_docx(path: Path) -> dict:
     return result
 
 
-def profile_pdf(path: Path) -> dict:
-    data = path.read_bytes()
-    page_count = len(re.findall(rb"/Type\s*/Page\b", data))
-    image_count = len(re.findall(rb"/Subtype\s*/Image\b", data))
-    text_markers = len(re.findall(rb"\b(BT|ET|Tj|TJ)\b", data[:2_000_000]))
-    return {
-        "page_count_estimate": page_count or None,
-        "image_count_estimate": image_count,
-        "may_be_scanned": image_count > 0 and text_markers < max(3, page_count),
-        "has_text_markers": text_markers > 0,
-    }
-
-
 def detect(path: Path) -> dict:
     suffix = path.suffix.lower()
     result = {
@@ -86,12 +51,13 @@ def detect(path: Path) -> dict:
         "format": suffix.lstrip(".") or "unknown",
     }
 
-    if suffix in TEXT_EXTENSIONS:
-        result.update(profile_text(path))
-    elif suffix == ".docx":
+    if suffix == ".docx":
         result.update(profile_docx(path))
+    elif suffix == ".doc":
+        result["warning"] = "Binary .doc files are not parsed directly. Convert to .docx before running the active workflow."
     elif suffix == ".pdf":
-        result.update(profile_pdf(path))
+        result["role"] = "reference_only"
+        result["warning"] = "PDF is reference-only in this skill version. Provide DOC/DOCX as the primary source."
     else:
         result["warning"] = "Unsupported or unknown format; inspect manually."
 
@@ -99,7 +65,7 @@ def detect(path: Path) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Detect document features for LaTeX conversion.")
+    parser = argparse.ArgumentParser(description="Detect DOC/DOCX source features for LaTeX conversion.")
     parser.add_argument("source", help="Source document path")
     parser.add_argument("--output", "-o", help="Optional JSON output path")
     args = parser.parse_args()

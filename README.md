@@ -1,52 +1,55 @@
 # document-to-latex
 
-`document-to-latex` is a Codex skill for converting common documents into structured, maintainable LaTeX projects.
+`document-to-latex` is a DOC/DOCX-first Codex skill for turning academic Word drafts into structured, maintainable LaTeX projects.
 
-The skill is designed for AI-authored conversion, not mechanical PDF rendering. Extraction scripts provide evidence and scaffolding; the AI should read the source, understand the document, and rewrite it for the target LaTeX template.
+The skill is not a PDF parser. PDF files may be used as optional visual references, but the active conversion path expects an editable Word source.
 
 ## What It Handles
 
-- DOCX, Markdown, HTML, TXT, text PDFs, scanned PDFs, and image-based documents
+- `.docx` academic papers, theses, graduation projects, and reports
+- `.doc` files when a local conversion or inspection tool is available
 - user-provided LaTeX templates, Overleaf projects, `.cls`, `.sty`, and `.def` files
-- typed format requirements and uploaded format guides
+- typed formatting requirements and uploaded formatting guides
+- imperfect Word drafts with inconsistent headings, rough tables, missing captions, mixed formulas, or incomplete references
 - Chinese and English academic writing
-- figures, tables, equations, citations, source preservation, and conversion reports
 
 ## Core Workflow
 
-1. Ask for missing context: template, formatting guide, reference sample, and output expectations.
+1. Ask the mandatory preflight question unless the user already answered it.
 2. Preserve original materials in `source/`.
-3. Analyze and preprocess any user template.
-4. Build a semantic representation of the source document.
-5. For complex PDFs, generate a semantic IR and AI authoring brief.
-6. Rewrite content for the target template instead of preserving source line breaks.
-7. Place figures, tables, and formulas according to semantic context.
-8. Compile, repair, and report uncertain conversions.
+3. Build a DOCX semantic IR with `build_docx_semantic_ir.py`.
+4. Generate and read a DOCX authoring brief.
+5. Analyze and preprocess any user template.
+6. Rewrite the content into the target LaTeX structure.
+7. Compile when possible.
+8. Run the quality gate.
+9. Report source defects, assumptions, and manual review items.
 
-## Important Lessons from v1.0 Testing
+## Design Position
 
-- PDF coordinates are evidence, not final placement rules.
-- Renderer output is only a draft scaffold.
-- Final chapters should be AI-authored after reading the source and authoring brief.
-- For converted reports and theses, content correspondence matters before float aesthetics.
-- Use `[H]` when figure/table float movement makes the PDF misleading.
-- Keep small and medium tables inline near the related paragraph.
-- Prefer `tblr` for converted tables.
-- Never classify citation fragments such as `[1]` or `[2-6]` as formulas.
+This skill behaves like an academic editing assistant, not a format dumper. It should:
+
+- understand the Word draft before writing LaTeX
+- normalize structure without inventing missing facts
+- separate content from style
+- rebuild academic tables as semantic three-line LaTeX tables instead of copying Word borders
+- use template-native commands when adapting a template
+- mark uncertain tables, formulas, captions, and references for review
+- avoid repeated mid-process questions by doing a short preflight first
 
 ## Main Scripts
 
 - `scripts/detect_document.py`: source profile.
+- `scripts/build_docx_semantic_ir.py`: DOCX semantic IR and defect report.
+- `scripts/write_docx_authoring_brief.py`: AI authoring brief from DOCX IR.
 - `scripts/analyze_template.py`: LaTeX template analysis.
-- `scripts/build_pdf_semantic_ir.py`: semantic IR for complex PDFs.
-- `scripts/write_pdf_authoring_brief.py`: authoring brief for AI rewriting.
-- `scripts/render_semantic_ir_to_latex.py`: draft scaffold generator, not final output.
 - `scripts/extract_format_requirements.py`: formatting requirement extraction.
 - `scripts/compile_latex.py`: local LaTeX compile helper.
+- `scripts/quality_gate.py`: delivery checks.
 - `scripts/write_conversion_report.py`: conversion report writer.
 
 ## Version
 
-Current release target: `v1.0`.
+Current development target: `v1.1-docx`.
 
-This version was validated against an `nwputhesis` template adaptation and a complex Chinese academic PDF with figures, formulas, tables, and two-column source layout.
+PDF-only conversion is intentionally deferred until a multimodal or MinerU-level layout pipeline is available.

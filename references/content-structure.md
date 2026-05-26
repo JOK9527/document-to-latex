@@ -21,6 +21,25 @@ As shown in Table~\ref{tab:chapter1-method-comparison}, the methods differ.
 
 The table file should include caption and label, but not global style settings. Put global table style in template style files.
 
+For academic DOCX conversions, rebuild clear data tables as three-line tables by default. Prefer template-native table environments when available; otherwise use `booktabs` rules:
+
+```latex
+\begin{table}[htbp]
+  \centering
+  \caption{Experimental parameters}
+  \label{tab:experimental-parameters}
+  \begin{tabular}{ll}
+    \toprule
+    Parameter & Value \\
+    \midrule
+    $K$ & 1.0 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+```
+
+Do not preserve Word's visual border grid as repeated `\hline` commands unless the template or user explicitly requires bordered tables.
+
 ## Figures
 
 Store figures by chapter when possible:
@@ -43,4 +62,3 @@ Use stable labels:
 ## Local Exceptions
 
 If a figure or table needs local style, add a concise comment explaining why the exception is local.
-

@@ -63,6 +63,41 @@ Preserve the original template layout when it is meaningful. Add generated conte
 
 Do not mix converted chapter content into `.cls`, `.sty`, or `.def` files.
 
+## No-Template Default Structure
+
+When no user template is provided, use one of the default template layouts from `assets/templates/` as the project skeleton. The chosen skeleton is part of the output contract, not only a style suggestion.
+
+Rules:
+
+- Keep generated `.tex` content inside a semantic subdirectory such as `content/article/`, `content/report/`, or `content/thesis/undergraduate/`.
+- Keep `content/figures/` and `content/tables/` for assets and supporting table data.
+- Keep metadata in `info.tex` or the template's metadata file.
+- Keep ordered chapter or section inputs in an aggregator such as `body.tex` or `chapters.tex`.
+- Do not create a flat `content/` root with many peer `.tex` files unless the user explicitly requests a compact single-folder project.
+- If the converted document naturally has many sections but is still an article, prefer `content/article/body.tex` with clear sectioning over a flat pile of numbered files.
+
+Acceptable no-template article layout:
+
+```text
+converted-latex-project/
+  main.tex
+  latexmkrc
+  conversion_report.md
+  source/
+  content/
+    figures/
+    tables/
+    article/
+      info.tex
+      abstract-cn.tex
+      abstract-en.tex
+      body.tex
+      appendix.tex
+      reference.bib
+```
+
+Acceptable no-template thesis/report layout should follow the examples above with a nested `content/report/` or `content/thesis/undergraduate/` directory.
+
 ## Source Directory
 
 Use `source/` for original user-provided materials:

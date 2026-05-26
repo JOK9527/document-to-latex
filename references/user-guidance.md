@@ -1,43 +1,48 @@
 # User Guidance
 
-Guide the user before converting when the request lacks important context. Ask only for information that changes the output.
+Ask only for information that materially changes the output. The goal is a short preflight, then steady execution.
 
-## Minimal Questions
+## Mandatory Preflight Gate
 
-When the user simply says "convert this document to LaTeX", ask:
+Do not start extraction, template adaptation, IR building, or LaTeX generation until the preflight state is explicit.
 
-1. Do you have a LaTeX template or existing Overleaf/project folder to use?
-2. Do you have formatting requirements, a school/journal guide, or a reference PDF?
-3. Should the output prioritize maintainable semantic LaTeX or visual fidelity to the original?
+Use this compact prompt:
 
-If the user has already provided any of these, do not ask again.
+```text
+Before I start: do you have a LaTeX template or formatting guide to use? If not, I can choose a default. Should I prioritize strict template compliance or clean maintainable LaTeX?
+```
 
-## When to Proceed Without Asking
+Proceed without asking only when one of these is true:
 
-Proceed with defaults when:
+- the user has already answered the template, formatting requirement, and output-priority question
+- the user explicitly says to use defaults, decide for them, or perform a quick conversion
+- the request itself includes the template and formatting context
 
-- the user asks for a quick conversion
-- no template or guide is available
-- the document is simple and the default template is adequate
-- the user explicitly says to decide for them
+## Avoid Mid-Process Interruptions
 
-Record assumptions in `conversion_report.md`.
+After preflight, continue working and record manageable uncertainty in `conversion_report.md`.
+
+Do not stop for:
+
+- missing figure captions that can be marked for review
+- rough table structure that can be preserved with notes
+- uncertain formulas that can be kept as review items
+- placeholder metadata in a template
+- minor punctuation or spacing cleanup
+
+Stop and ask only when:
+
+- no DOC/DOCX source exists
+- a `.doc` file cannot be converted or inspected locally
+- template and user instructions directly conflict in a way that changes the deliverable
+- required source content is missing
 
 ## Suggested Defaults
 
-- Chinese document: `ctexart` or thesis-like template with XeLaTeX
-- English short document: `article`
+- Chinese short academic paper: `ctexart` with XeLaTeX
+- English short academic paper: `article`
 - long report: `report`
-- thesis or graduation design: `thesis-lite`
-- default goal: maintainable semantic LaTeX
+- thesis or graduation project: `thesis-lite`
+- default priority: strict template compliance when a template exists; clean maintainable LaTeX when no template exists
 
-## Useful Follow-up Prompts
-
-Use concise prompts such as:
-
-- "Do you want me to use a specific LaTeX template, or should I choose a default one?"
-- "Do you have a formatting guide or reference PDF I should follow?"
-- "Should I prioritize matching the original layout, or producing clean LaTeX that is easy to edit?"
-
-Avoid a long intake form unless the user is preparing a thesis, journal submission, or strict institutional format.
-
+Record assumptions in `conversion_report.md`.
