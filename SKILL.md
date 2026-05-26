@@ -91,6 +91,7 @@ Handle these defects as follows:
 - Preserve uncertain formulas as review notes or image fallbacks when editable reconstruction is unsafe.
 - Normalize table structure only when the result is faithful and reviewable.
 - Convert clear academic tables to three-line tables using template-native table commands or `booktabs` (`\toprule`, `\midrule`, `\bottomrule`). Avoid `\hline` grids copied from Word styling.
+- Never omit an extracted Word data table just because it lacks a caption. Render it with a conservative provisional caption and record the assumption in `conversion_report.md`.
 - Record unresolved defects in `conversion_report.md`.
 
 ## Template Handling
@@ -150,5 +151,5 @@ Read `references/output-project-structure.md`, `references/chapter-splitting.md`
 - `scripts/analyze_template.py`: LaTeX template analysis.
 - `scripts/extract_format_requirements.py`: formatting requirement extraction.
 - `scripts/compile_latex.py`: local compile helper.
-- `scripts/quality_gate.py`: delivery checks for structure, mojibake, and missing review artifacts.
+- `scripts/quality_gate.py`: delivery checks for structure, mojibake, missing review artifacts, table style, and optional DOCX IR table coverage.
 - `scripts/write_conversion_report.py`: conversion report writer.

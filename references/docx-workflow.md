@@ -55,6 +55,8 @@ Read both files before writing LaTeX.
 - Rebuild tables as reviewable LaTeX when the structure is clear.
 - For academic documents, convert clear data tables to three-line tables by default. Use template-native table commands or `booktabs` (`\toprule`, `\midrule`, `\bottomrule`) instead of preserving Word borders.
 - Do not emit Word-style full grid tables with repeated `\hline` unless the template or user explicitly requires bordered tables.
+- If the DOCX IR contains table rows and cells, render the table in LaTeX even when the original DOCX has no caption.
+- Missing captions should become conservative provisional captions plus `conversion_report.md` assumptions, not `% REVIEW` placeholders that omit the table.
 - Mark unclear tables instead of pretending they are clean.
 - Preserve figure order and captions when reliable.
 - Generate captions only when the figure role is obvious, and record this.

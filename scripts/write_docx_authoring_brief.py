@@ -66,6 +66,8 @@ def write_brief(ir: dict[str, Any]) -> str:
         "- Fix obvious formatting noise, but do not invent missing data.",
         "- Use template-native commands and keep style out of content files.",
         "- Rebuild clear academic tables as three-line tables; do not preserve Word border grids unless required.",
+        "- Render every extracted data table in LaTeX when rows and cells are available, even if the DOCX has no caption.",
+        "- For a table without a caption, infer a conservative provisional caption from nearby text or table contents and record it in the report.",
         "- Mark uncertain tables, captions, formulas, and references in the report.",
         "- Ask no extra questions unless a missing answer materially changes the output.",
         "",
@@ -109,6 +111,8 @@ def write_brief(ir: dict[str, Any]) -> str:
         caption = table.get("caption") or "(no caption)"
         notes = table.get("quality_notes") or []
         lines.append(f"- {table.get('id')}: {len(table.get('rows') or [])} row(s), caption: {caption}")
+        if not table.get("caption"):
+            lines.append("  - Required: do not skip this table. Create a provisional semantic caption and list it as an assumption in conversion_report.md.")
         lines.append("  - Authoring: use a three-line table with template-native rules or booktabs.")
         for note in notes:
             lines.append(f"  - Review: {note}")

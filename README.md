@@ -33,6 +33,7 @@ This skill behaves like an academic editing assistant, not a format dumper. It s
 - normalize structure without inventing missing facts
 - separate content from style
 - rebuild academic tables as semantic three-line LaTeX tables instead of copying Word borders
+- render extracted DOCX data tables even when the source forgot the table caption
 - use template-native commands when adapting a template
 - mark uncertain tables, formulas, captions, and references for review
 - avoid repeated mid-process questions by doing a short preflight first
@@ -45,7 +46,7 @@ This skill behaves like an academic editing assistant, not a format dumper. It s
 - `scripts/analyze_template.py`: LaTeX template analysis.
 - `scripts/extract_format_requirements.py`: formatting requirement extraction.
 - `scripts/compile_latex.py`: local LaTeX compile helper.
-- `scripts/quality_gate.py`: delivery checks.
+- `scripts/quality_gate.py`: delivery checks, including optional DOCX IR table coverage.
 - `scripts/write_conversion_report.py`: conversion report writer.
 
 ## Version
