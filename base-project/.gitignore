@@ -4,6 +4,6 @@ source/*
 !work/README.md
 !project/README.md
 !source/README.md
-skills/document-to-latex/*
-!skills/document-to-latex/.gitkeep
-!skills/document-to-latex/README.md
+.codex/skills/doc2latex/*
+!.codex/skills/doc2latex/.gitkeep
+!.codex/skills/doc2latex/README.md
