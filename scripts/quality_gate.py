@@ -43,6 +43,7 @@ MOJIBAKE_TOKENS = [
 ]
 TEXT_SUFFIXES = {".tex", ".bib", ".md", ".cls", ".sty", ".def"}
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".pdf"}
+UNSUPPORTED_GRAPHICS_SUFFIXES = {".wmf", ".emf"}
 
 
 def read_text(path: Path) -> str:
@@ -128,29 +129,73 @@ def check_structure(project: Path) -> list[dict[str, Any]]:
     return findings
 
 
-def used_graphics(project: Path) -> set[Path]:
-    used: set[Path] = set()
+def graphics_references(project: Path) -> list[dict[str, Any]]:
+    references: list[dict[str, Any]] = []
     pattern = re.compile(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}")
     for path in tex_files(project):
         text = read_text(path)
         for match in pattern.finditer(text):
             raw = match.group(1).strip()
             candidate = (project / raw).resolve()
+            resolved: Path | None = None
             if candidate.exists():
-                used.add(candidate)
-                continue
-            if candidate.suffix:
-                continue
-            for suffix in IMAGE_SUFFIXES:
-                with_suffix = candidate.with_suffix(suffix)
-                if with_suffix.exists():
-                    used.add(with_suffix.resolve())
-                    break
+                resolved = candidate
+            elif not candidate.suffix:
+                for suffix in IMAGE_SUFFIXES:
+                    with_suffix = candidate.with_suffix(suffix)
+                    if with_suffix.exists():
+                        resolved = with_suffix.resolve()
+                        break
+            references.append(
+                {
+                    "path": path,
+                    "raw": raw,
+                    "resolved": resolved,
+                    "suffix": candidate.suffix.lower(),
+                }
+            )
+    return references
+
+
+def used_graphics(project: Path) -> set[Path]:
+    used: set[Path] = set()
+    for reference in graphics_references(project):
+        resolved = reference.get("resolved")
+        if isinstance(resolved, Path):
+            used.add(resolved)
     return used
 
 
 def check_images(project: Path) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
+    references = graphics_references(project)
+    missing = [f"{item['path']}: {item['raw']}" for item in references if item.get("resolved") is None]
+    unsupported = [
+        f"{item['path']}: {item['raw']}"
+        for item in references
+        if (item.get("suffix") or "").lower() in UNSUPPORTED_GRAPHICS_SUFFIXES
+    ]
+    if missing:
+        findings.append(
+            {
+                "severity": "error",
+                "check": "missing_graphics",
+                "message": f"{len(missing)} included graphics file(s) cannot be resolved. Use an in-place placeholder instead of silently dropping figures or formula images.",
+                "paths": missing[:20],
+            }
+        )
+    if unsupported:
+        findings.append(
+            {
+                "severity": "error",
+                "check": "unsupported_graphics",
+                "message": f"{len(unsupported)} WMF/EMF graphic reference(s) remain. Convert them to a supported fallback such as PNG/PDF, or keep a visible in-place review placeholder.",
+                "paths": unsupported[:20],
+            }
+        )
+    if missing or unsupported:
+        findings.extend(check_review_placeholders(project))
+
     images = image_files(project)
     used = used_graphics(project)
     unreferenced = [path for path in images if path.resolve() not in used]
@@ -183,12 +228,69 @@ def check_images(project: Path) -> list[dict[str, Any]]:
     return findings
 
 
+def environment_blocks(text: str, environments: tuple[str, ...]) -> list[tuple[str, str]]:
+    names = "|".join(re.escape(name) for name in environments)
+    pattern = re.compile(rf"\\begin\{{({names})\}}.*?\\end\{{\1\}}", re.S)
+    return [(match.group(1), match.group(0)) for match in pattern.finditer(text)]
+
+
 def table_blocks(text: str) -> list[str]:
+    return [block for _, block in environment_blocks(text, ("table", "longtable", "tabular", "tabularx", "tblr"))]
+
+
+def check_review_placeholders(project: Path) -> list[dict[str, Any]]:
+    findings: list[dict[str, Any]] = []
+    offenders: list[str] = []
     pattern = re.compile(
-        r"\\begin\{(?:table|longtable|tabular|tabularx|tblr)\}.*?\\end\{(?:table|longtable|tabular|tabularx|tblr)\}",
-        re.S,
+        r"(REVIEW|TODO|待复核|待确认|人工复核|placeholder|占位)",
+        re.I,
     )
-    return [match.group(0) for match in pattern.finditer(text)]
+    for path in tex_files(project):
+        if pattern.search(read_text(path)):
+            offenders.append(str(path))
+    if not offenders:
+        findings.append(
+            {
+                "severity": "warning",
+                "check": "review_placeholders",
+                "message": "No visible review placeholder was found. When content cannot be reliably converted, keep an in-place warning block instead of relying only on the report.",
+            }
+        )
+    return findings
+
+
+def check_figure_table_semantics(project: Path) -> list[dict[str, Any]]:
+    findings: list[dict[str, Any]] = []
+    longtable_graphics: list[str] = []
+    table_graphics: list[str] = []
+    for path in tex_files(project):
+        text = read_text(path)
+        for env, block in environment_blocks(text, ("longtable", "table")):
+            if r"\includegraphics" not in block:
+                continue
+            if env == "longtable":
+                longtable_graphics.append(str(path))
+            elif r"\caption" in block:
+                table_graphics.append(str(path))
+    if longtable_graphics:
+        findings.append(
+            {
+                "severity": "warning",
+                "check": "longtable_graphics",
+                "message": "longtable contains graphics. This usually means an image group was treated as a data table; use figure/subfigure/minipage layout or an in-place figure-group placeholder.",
+                "paths": sorted(set(longtable_graphics)),
+            }
+        )
+    if table_graphics:
+        findings.append(
+            {
+                "severity": "warning",
+                "check": "table_graphics",
+                "message": "A table environment contains graphics and a caption. Verify that image content was not mislabeled as a table.",
+                "paths": sorted(set(table_graphics)),
+            }
+        )
+    return findings
 
 
 def rendered_table_count(project: Path) -> int:
@@ -264,6 +366,7 @@ def run_quality_gate(project: Path, ir: dict[str, Any] | None = None) -> dict[st
     findings.extend(check_structure(project))
     findings.extend(check_mojibake(project))
     findings.extend(check_images(project))
+    findings.extend(check_figure_table_semantics(project))
     findings.extend(check_table_coverage(project, ir))
     findings.extend(check_table_placeholders(project))
     findings.extend(check_table_style(project))

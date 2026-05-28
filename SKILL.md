@@ -16,6 +16,8 @@ This branch is specialized for Northwestern Polytechnical University students.
 
 Do not ask the user to provide a LaTeX template unless they explicitly want to override the embedded `nwputhesis` template.
 
+Use this skill for explicit slash-command requests and for plain-language requests to convert a Word/DOCX academic draft into LaTeX. If the user is only discussing conversion strategy, do not start the workflow until they ask to convert or update files.
+
 ## Core Principles
 
 - Use `nwputhesis` by default.
@@ -26,6 +28,7 @@ Do not ask the user to provide a LaTeX template unless they explicitly want to o
 - Keep content and style separated.
 - Use NWPU template-native structure and commands.
 - Rebuild academic tables as three-line tables by default.
+- Preserve figure, table, and formula positions when conversion confidence is low.
 - Record source defects and assumptions in `conversion_report.md`.
 - Avoid repeated mid-process questions; continue with review notes when uncertainty is manageable.
 
@@ -121,10 +124,25 @@ Run `scripts/write_docx_authoring_brief.py` and read the brief before writing La
 - Never omit an extracted Word data table just because it has no caption.
 - When a table lacks a caption, infer a conservative provisional caption from nearby text or the table contents, render the table, and record the assumption in `conversion_report.md`.
 - Generate missing figure/table captions only when the role is clear, and record that in the report.
+- Treat adjacent or grid-aligned images as a possible figure group before emitting independent figures.
+- For figure groups, choose one of these policies and record the choice: shared group caption, separate captions, subfigures with labels such as `(a)`, `(b)`, `(c)`, or in-place review placeholder when the relationship is unclear.
+- Do not use `longtable` to lay out image groups. Use a figure/subfigure/minipage layout when confident, or keep an in-place figure-group placeholder.
 - Do not invent missing data, references, formulas, committee members, student numbers, or signatures.
-- Keep uncertain formulas and rough tables as review notes when faithful reconstruction is unsafe.
+- Keep uncertain formulas, rough tables, and ambiguous image groups in their source position as visible review placeholders when faithful reconstruction is unsafe.
+- Preserve WMF/EMF formula images by converting them to a supported fallback such as PNG/PDF when possible. If conversion fidelity is uncertain, include the fallback in place and mark it for manual review.
+- Without reliable visual or formula parsing, do not guess LaTeX for image-only formulas. Keep the formula image or a visible placeholder in the original location.
 - Put generated figures under `content/figures/`.
 - Keep small and medium tables near the related text for reviewability.
+
+## Quality Modes
+
+Default to balanced quality checks.
+
+- `draft`: prioritize content retention and compilation; warnings can remain for review.
+- `balanced`: block content loss, missing assets, unsupported graphics, and obvious compilation failures; warn on likely semantic issues.
+- `strict`: treat unresolved warnings as delivery blockers for final handoff.
+
+Use `scripts/quality_gate.py --fail-on-warning` only for strict delivery checks. In balanced mode, warnings should be summarized in `conversion_report.md` and fixed when they indicate real semantic drift.
 
 ## References
 

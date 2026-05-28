@@ -4,6 +4,8 @@
 
 It converts academic DOCX drafts into LaTeX projects using an embedded, trimmed copy of [`1195343015/nwputhesis`](https://github.com/1195343015/nwputhesis).
 
+The workflow should be used for explicit slash-command requests and for plain-language requests such as converting an academic Word thesis draft to LaTeX. Discussion-only requests should stay in planning mode until the user asks to convert or update files.
+
 ## Scope
 
 - Primary input: `.docx`
@@ -32,9 +34,19 @@ For graduate theses, default to academic degree. Ask about professional degree o
 5. Create the project with `scripts/create_nwputhesis_project.py`.
 6. Fill the appropriate `content/thesis/undergraduate/` or `content/thesis/graduate/` files.
 7. Use three-line tables by default; extracted DOCX tables must be rendered even when the original table caption is missing.
-8. Compile when possible.
-9. Run the quality gate, preferably with the DOCX semantic IR for table coverage checks.
-10. Write a conversion report.
+8. Preserve uncertain figures, tables, and formulas in place with visible review placeholders instead of silently dropping or moving them.
+9. Compile when possible.
+10. Run the quality gate, preferably with the DOCX semantic IR for table coverage checks.
+11. Write a conversion report.
+
+## V1.2 Focus
+
+- Detect adjacent or grid-aligned images as possible figure groups before emitting separate figures.
+- Support shared captions, separate captions, subfigure labels, or in-place placeholders for ambiguous multi-image regions.
+- Keep uncertain content fixed near its source position with visible review warnings.
+- Convert WMF/EMF formula images to supported fallbacks when possible; otherwise keep an in-place placeholder and report the issue.
+- Warn when image groups are treated as data tables, especially `longtable` blocks containing `\includegraphics`.
+- Use balanced quality checks by default, with strict checks available for final delivery.
 
 ## Embedded Template
 
