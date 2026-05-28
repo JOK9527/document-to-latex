@@ -42,9 +42,10 @@ Read both files before writing LaTeX.
 - abstract, keywords, acknowledgements, appendix, and bibliography sections
 - inconsistent numbering or manual heading formatting
 - images without nearby captions
+- adjacent or grid-aligned images that may form a shared-caption or subfigure group
 - captions without nearby images or tables
 - tables with empty rows, uneven row widths, or unclear headers
-- formulas represented as OMML, images, or plain text
+- formulas represented as OMML, images, WMF/EMF fallbacks, OLE objects, or plain text
 - citation markers and bibliography candidates
 
 ## Authoring Rules
@@ -59,9 +60,12 @@ Read both files before writing LaTeX.
 - Missing captions should become conservative provisional captions plus `conversion_report.md` assumptions, not `% REVIEW` placeholders that omit the table.
 - Mark unclear tables instead of pretending they are clean.
 - Preserve figure order and captions when reliable.
+- Detect possible figure groups before emitting standalone figures. Choose shared caption, separate captions, subfigure labels, or an in-place review placeholder when the relationship is unclear.
 - Generate captions only when the figure role is obvious, and record this.
+- Do not use `longtable` as an image-layout workaround. Multi-image content should remain figure semantics.
 - Reconstruct formulas as editable LaTeX only when confident.
-- Preserve uncertain formulas as review notes or image fallbacks.
+- Preserve uncertain formulas in place as review notes or image fallbacks.
+- Convert WMF/EMF formula images to PNG/PDF fallbacks before delivery when possible. If fidelity is uncertain, keep the fallback in place and mark it for manual review.
 - Normalize obvious punctuation and spacing noise, but do not rewrite technical claims.
 
 ## Defect Handling
@@ -74,9 +78,10 @@ Common defects:
 - headings typed as plain bold text
 - missing figure/table captions
 - duplicate or skipped figure/table numbers
+- adjacent images with no clear shared or separate captions
 - tables used for layout rather than data
 - tables with decorative Word borders that should become semantic three-line tables
-- copied formulas stored as images
+- copied formulas stored as images, especially WMF/EMF/OLE formula objects
 - references pasted as plain text
 - mixed Chinese and English punctuation
 

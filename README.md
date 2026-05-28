@@ -4,6 +4,8 @@
 
 The skill is not a PDF parser. PDF files may be used as optional visual references, but the active conversion path expects an editable Word source.
 
+The workflow should be used for explicit slash-command requests and for plain-language requests such as converting an academic Word thesis draft to LaTeX. Discussion-only requests should stay in planning mode until the user asks to convert or update files.
+
 ## What It Handles
 
 - `.docx` academic papers, theses, graduation projects, and reports
@@ -21,9 +23,10 @@ The skill is not a PDF parser. PDF files may be used as optional visual referenc
 4. Generate and read a DOCX authoring brief.
 5. Analyze and preprocess any user template.
 6. Rewrite the content into the target LaTeX structure.
-7. Compile when possible.
-8. Run the quality gate.
-9. Report source defects, assumptions, and manual review items.
+7. Preserve uncertain figures, tables, and formulas in place with visible review placeholders instead of silently dropping or moving them.
+8. Compile when possible.
+9. Run the quality gate.
+10. Report source defects, assumptions, and manual review items.
 
 ## Design Position
 
@@ -36,7 +39,17 @@ This skill behaves like an academic editing assistant, not a format dumper. It s
 - render extracted DOCX data tables even when the source forgot the table caption
 - use template-native commands when adapting a template
 - mark uncertain tables, formulas, captions, and references for review
+- keep uncertain figures, tables, and formulas near their source position with visible review placeholders
 - avoid repeated mid-process questions by doing a short preflight first
+
+## V1.2 Focus
+
+- Detect adjacent or grid-aligned images as possible figure groups before emitting separate figures.
+- Support shared captions, separate captions, subfigure labels, or in-place placeholders for ambiguous multi-image regions.
+- Keep uncertain content fixed near its source position with visible review warnings.
+- Convert WMF/EMF formula images to supported fallbacks when possible; otherwise keep an in-place placeholder and report the issue.
+- Warn when image groups are treated as data tables, especially `longtable` blocks containing `\includegraphics`.
+- Use balanced quality checks by default, with strict checks available for final delivery.
 
 ## Main Scripts
 
@@ -51,6 +64,6 @@ This skill behaves like an academic editing assistant, not a format dumper. It s
 
 ## Version
 
-Current development target: `v1.1-docx`.
+Current development target: `v1.2`.
 
 PDF-only conversion is intentionally deferred until a multimodal or MinerU-level layout pipeline is available.

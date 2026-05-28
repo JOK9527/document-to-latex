@@ -1,5 +1,24 @@
 # Worklog
 
+## v1.2 - 2026-05-28
+
+### Direction
+
+Improve conversion reliability for ambiguous image, table, and formula regions.
+
+### Added
+
+- Figure-group policy for adjacent or grid-aligned images with shared captions, separate captions, subfigure labels, or in-place placeholders.
+- In-place placeholder guidance for uncertain figures, tables, and image-only formulas.
+- WMF/EMF formula-image handling policy: convert to PNG/PDF fallback when possible and mark uncertain fidelity for review.
+- Balanced quality-gate checks for missing graphics, unsupported WMF/EMF references, and likely image-group/table semantic mistakes.
+
+### Guardrails
+
+- Do not use `longtable` to lay out image groups.
+- Do not silently drop unsupported graphics or image-only formulas.
+- Keep uncertain content near its source paragraph instead of allowing floats to drift away.
+
 ## v1.1-docx - 2026-05-26
 
 ### Direction

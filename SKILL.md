@@ -11,6 +11,8 @@ This skill is DOC/DOCX-first. It is for academic papers, theses, graduation proj
 
 Use PDF only as optional reference material for visual checking. Do not treat PDF as the primary conversion source in this version.
 
+Use this skill for explicit slash-command requests and for plain-language requests to convert a Word/DOCX academic draft into LaTeX. If the user is only discussing conversion strategy, do not start the workflow until they ask to convert or update files.
+
 ## Core Principles
 
 - Convert from the editable Word structure whenever possible.
@@ -22,6 +24,7 @@ Use PDF only as optional reference material for visual checking. Do not treat PD
 - Adapt to user templates without rewriting template internals unless required for compilation.
 - Normalize academic structure: title, metadata, abstract, keywords, chapters, sections, figures, tables, equations, citations, bibliography, appendices, and acknowledgements.
 - Rebuild academic tables as LaTeX three-line tables by default; do not preserve Word border styling unless the template or user explicitly requires it.
+- Preserve figure, table, and formula positions when conversion confidence is low.
 - Detect source defects and record them instead of silently guessing.
 - Compile and repair before delivery whenever the local toolchain supports it.
 
@@ -92,6 +95,12 @@ Handle these defects as follows:
 - Normalize table structure only when the result is faithful and reviewable.
 - Convert clear academic tables to three-line tables using template-native table commands or `booktabs` (`\toprule`, `\midrule`, `\bottomrule`). Avoid `\hline` grids copied from Word styling.
 - Never omit an extracted Word data table just because it lacks a caption. Render it with a conservative provisional caption and record the assumption in `conversion_report.md`.
+- Treat adjacent or grid-aligned images as a possible figure group before emitting independent figures.
+- For figure groups, choose one of these policies and record the choice: shared group caption, separate captions, subfigures with labels such as `(a)`, `(b)`, `(c)`, or in-place review placeholder when the relationship is unclear.
+- Do not use `longtable` to lay out image groups. Use a figure/subfigure/minipage layout when confident, or keep an in-place figure-group placeholder.
+- Keep uncertain formulas, rough tables, and ambiguous image groups in their source position as visible review placeholders when faithful reconstruction is unsafe.
+- Preserve WMF/EMF formula images by converting them to a supported fallback such as PNG/PDF when possible. If conversion fidelity is uncertain, include the fallback in place and mark it for manual review.
+- Without reliable visual or formula parsing, do not guess LaTeX for image-only formulas. Keep the formula image or a visible placeholder in the original location.
 - Record unresolved defects in `conversion_report.md`.
 
 ## Template Handling
@@ -127,6 +136,16 @@ Use a layered layout:
 - Figures should use semantic filenames when possible.
 
 Read `references/output-project-structure.md`, `references/chapter-splitting.md`, and `references/content-structure.md` before generating files.
+
+## Quality Modes
+
+Default to balanced quality checks.
+
+- `draft`: prioritize content retention and compilation; warnings can remain for review.
+- `balanced`: block content loss, missing assets, unsupported graphics, and obvious compilation failures; warn on likely semantic issues.
+- `strict`: treat unresolved warnings as delivery blockers for final handoff.
+
+Use `scripts/quality_gate.py --fail-on-warning` only for strict delivery checks. In balanced mode, warnings should be summarized in `conversion_report.md` and fixed when they indicate real semantic drift.
 
 ## References
 
