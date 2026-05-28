@@ -1,23 +1,23 @@
 # document-to-latex
 
-Use the project-local skill at `skills/document-to-latex`.
+Use the project-local skill at `.codex/skills/doc2latex`.
 
 ## Preflight
 
 Before starting, verify that this file exists:
 
 ```text
-skills/document-to-latex/SKILL.md
+.codex/skills/doc2latex/SKILL.md
 ```
 
-If it is missing, stop and tell the user to copy the `document-to-latex` skill into `skills/document-to-latex/`.
+If it is missing, stop and tell the user to copy the `document-to-latex` skill into `.codex/skills/doc2latex/`.
 
 ## Read First
 
 Read these files before planning the conversion:
 
-1. `skills/document-to-latex/SKILL.md`
-2. `skills/document-to-latex/README.md`
+1. `.codex/skills/doc2latex/SKILL.md`
+2. `.codex/skills/doc2latex/README.md`
 
 Then read any reference files named by `SKILL.md` for the document type, template, and conversion task.
 

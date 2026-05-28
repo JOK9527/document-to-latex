@@ -10,10 +10,10 @@ This is a minimal project folder for using the `document-to-latex` skill in Clau
 |   `-- commands/
 |       `-- document-to-latex.md
 |-- .codex/
-|   `-- commands/
-|       `-- document-to-latex.md
-|-- skills/
-|   `-- document-to-latex/
+|   |-- commands/
+|   |   `-- document-to-latex.md
+|   `-- skills/
+|       `-- doc2latex/
 |-- source/
 |-- work/
 `-- project/
@@ -24,16 +24,16 @@ This is a minimal project folder for using the `document-to-latex` skill in Clau
 Copy the released `document-to-latex` skill into:
 
 ```text
-skills/document-to-latex/
+.codex/skills/doc2latex/
 ```
 
 After copying, this file should exist:
 
 ```text
-skills/document-to-latex/SKILL.md
+.codex/skills/doc2latex/SKILL.md
 ```
 
-Do not put source documents inside `skills/`. The skill directory is only for the conversion workflow, scripts, references, and templates.
+Do not put source documents inside `.codex/skills/`. The skill directory is only for the conversion workflow, scripts, references, and templates.
 
 ## Use The Project
 
@@ -56,4 +56,4 @@ Generated LaTeX output belongs in `project/`. Intermediate analysis, semantic IR
 
 ## Update The Skill
 
-To update the workflow, replace the contents of `skills/document-to-latex/` with a newer release of the skill. Keep `source/`, `work/`, and `project/` as project-specific folders.
+To update the workflow, replace the contents of `.codex/skills/doc2latex/` with a newer release of the skill. Keep `source/`, `work/`, and `project/` as project-specific folders.
