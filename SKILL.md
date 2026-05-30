@@ -27,6 +27,7 @@ Use this skill for explicit slash-command requests and for plain-language reques
 - Generate a complete LaTeX project under `project/`.
 - Keep content and style separated.
 - Use NWPU template-native structure and commands.
+- Treat Word formulas as imperfect content, not reliable formatting; rebuild equation environments, numbering, labels, and references under LaTeX and `nwputhesis` rules.
 - Rebuild academic tables as three-line tables by default.
 - Preserve figure, table, and formula positions when conversion confidence is low.
 - Record source defects and assumptions in `conversion_report.md`.
@@ -56,7 +57,7 @@ For graduate theses, default to academic degree. Ask whether it is professional 
    - bachelor: `content/thesis/undergraduate/`
    - master or PhD: `content/thesis/graduate/`
 8. Update metadata in `info.tex`.
-9. Write chapters, abstract, references, appendices, acknowledgements, and review notes.
+9. Write chapters, abstract, references, appendices, acknowledgements, formula-normalized LaTeX, and review notes.
 10. Compile if possible.
 11. Run `scripts/quality_gate.py`.
 12. Write `conversion_report.md`.
@@ -129,6 +130,11 @@ Run `scripts/write_docx_authoring_brief.py` and read the brief before writing La
 - Do not use `longtable` to lay out image groups. Use a figure/subfigure/minipage layout when confident, or keep an in-place figure-group placeholder.
 - Do not invent missing data, references, formulas, committee members, student numbers, or signatures.
 - Keep uncertain formulas, rough tables, and ambiguous image groups in their source position as visible review placeholders when faithful reconstruction is unsafe.
+- For reliable formulas, ignore Word spacing, line breaks, indentation, and manual equation numbers; reconstruct the ideal LaTeX environment.
+- Number only core definition/theorem/lemma/proposition formulas or formulas explicitly referenced later.
+- Use `equation + label` for numbered formulas, `equation + aligned` for one logical multi-line numbered formula, and `\[ aligned \]` for unnumbered derivations.
+- Replace manual equation references with `\eqref` when the target is clear, and record ambiguous references in the report.
+- Define repeated math shapes such as compact matrices or Gaussian binomials as template-level macros instead of hand-tuning each occurrence.
 - Preserve WMF/EMF formula images by converting them to a supported fallback such as PNG/PDF when possible. If conversion fidelity is uncertain, include the fallback in place and mark it for manual review.
 - Without reliable visual or formula parsing, do not guess LaTeX for image-only formulas. Keep the formula image or a visible placeholder in the original location.
 - Put generated figures under `content/figures/`.
@@ -150,6 +156,7 @@ Use `scripts/quality_gate.py --fail-on-warning` only for strict delivery checks.
 - Read `references/docx-workflow.md` for DOCX extraction and authoring.
 - Read `references/content-structure.md` for figures and tables.
 - Read `references/cross-references.md` for labels and references.
+- Read `references/formula-normalization.md` before reconstructing formulas from Word or PDF references.
 - Read `references/chinese-latex.md` for Chinese text.
 - Read `references/troubleshooting.md` when compilation fails.
 

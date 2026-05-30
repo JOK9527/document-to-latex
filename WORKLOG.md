@@ -1,5 +1,24 @@
 # Worklog
 
+## v1.3 - 2026-05-31
+
+### Direction
+
+Rebuild formula handling for imperfect Word sources instead of trusting Word or PDF equation formatting.
+
+### Added
+
+- Formula normalization policy covering content fidelity, equation environments, numbering, labels, `\eqref`, and repeated math-shape macros.
+- Authoring brief guidance that treats Word equation spacing, line breaks, indentation, and manual numbers as draft signals only.
+- Quality-gate warnings for raw `$$`, numbered equations without labels, ordinary numbered `align`, manual equation-number references, and missing chapter equation-numbering configuration.
+- Template-level `\rankmat` and `\gbinom` helpers, plus chapter equation numbering in chapter-based skeletons.
+
+### Guardrails
+
+- Do not alter mathematical meaning while fixing formula structure.
+- Do not number example calculations or proof intermediate steps unless later prose clearly references them.
+- Do not preserve manual equation numbers when semantic labels and `\eqref` can be used.
+
 ## v1.2 - 2026-05-28
 
 ### Direction

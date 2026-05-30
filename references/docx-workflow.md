@@ -46,6 +46,7 @@ Read both files before writing LaTeX.
 - captions without nearby images or tables
 - tables with empty rows, uneven row widths, or unclear headers
 - formulas represented as OMML, images, WMF/EMF fallbacks, OLE objects, or plain text
+- formulas with manual numbering, unreliable line breaks, stretched delimiters, or Word-only visual spacing
 - citation markers and bibliography candidates
 
 ## Authoring Rules
@@ -64,6 +65,12 @@ Read both files before writing LaTeX.
 - Generate captions only when the figure role is obvious, and record this.
 - Do not use `longtable` as an image-layout workaround. Multi-image content should remain figure semantics.
 - Reconstruct formulas as editable LaTeX only when confident.
+- Treat Word/PDF formula layout as a draft signal, not a formatting authority.
+- Preserve math content exactly, then rebuild equation environments, labels, references, and visual layout using `references/formula-normalization.md`.
+- Use inline math for prose formulas, unnumbered display math for examples and proof steps, and numbered `equation` only for core formulas or explicit later references.
+- Use `equation + aligned` for one logical multi-line numbered formula; use `\[ aligned \]` for unnumbered derivations.
+- Do not preserve manual equation numbers; create semantic labels and use `\eqref` when the target is clear.
+- Keep repeated math shapes in template-level macros instead of hand-tuning individual formulas.
 - Preserve uncertain formulas in place as review notes or image fallbacks.
 - Convert WMF/EMF formula images to PNG/PDF fallbacks before delivery when possible. If fidelity is uncertain, keep the fallback in place and mark it for manual review.
 - Normalize obvious punctuation and spacing noise, but do not rewrite technical claims.
@@ -82,6 +89,8 @@ Common defects:
 - tables used for layout rather than data
 - tables with decorative Word borders that should become semantic three-line tables
 - copied formulas stored as images, especially WMF/EMF/OLE formula objects
+- formula numbering copied as plain text instead of semantic references
+- formulas broken by Word spacing, manual line breaks, or stretched brackets
 - references pasted as plain text
 - mixed Chinese and English punctuation
 

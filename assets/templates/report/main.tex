@@ -5,8 +5,16 @@
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{tabularx}
-\usepackage{amsmath,amssymb}
+\usepackage{amsmath,amssymb,mathtools}
 \usepackage[hidelinks]{hyperref}
+
+\numberwithin{equation}{chapter}
+\renewcommand{\theequation}{\thechapter-\arabic{equation}}
+\providecommand{\rankmat}[1]{%
+  {\renewcommand{\arraystretch}{0.92}%
+  \left(\begin{matrix}#1\end{matrix}\right)}%
+}
+\providecommand{\gbinom}[3]{\genfrac{[}{]}{0pt}{}{#1}{#2}_{#3}}
 
 % Metadata is separated from chapter content.
 \input{content/report/info}

@@ -39,6 +39,14 @@ For graduate theses, default to academic degree. Ask about professional degree o
 10. Run the quality gate, preferably with the DOCX semantic IR for table coverage checks.
 11. Write a conversion report.
 
+## V1.3 Focus
+
+- Treat Word formulas as imperfect content rather than reliable formatting.
+- Rebuild equation environments, numbering, labels, and references under LaTeX and `nwputhesis` rules.
+- Prefer semantic `\label` plus `\eqref` over manual equation numbers copied from Word.
+- Keep ordinary examples and proof steps unnumbered while numbering core formulas and later-referenced formulas.
+- Use shared formula macros for repeated math shapes so visual form stays consistent across chapters.
+
 ## V1.2 Focus
 
 - Detect adjacent or grid-aligned images as possible figure groups before emitting separate figures.

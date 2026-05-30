@@ -100,6 +100,11 @@ Do not invent committee members, student numbers, authorization signatures, or a
 - Keep small and medium tables near the paragraph that discusses them.
 - Store figures in `content/figures/`.
 - Use stable semantic labels such as `fig:system-architecture`, `tab:experiment-parameters`, and `eq:control-law`.
+- Treat Word formula layout as an unreliable draft signal: preserve math content, then rebuild equation environments, numbering, labels, references, and visual layout under `references/formula-normalization.md`.
+- Use inline math for prose formulas, unnumbered display math for examples and proof steps, and numbered `equation` only for core formulas or formulas explicitly referenced later.
+- Use `equation + aligned` for one logical multi-line numbered formula; use `\[ aligned \]` for unnumbered derivations.
+- Replace clear manual equation numbers with semantic `eq:` labels and `\eqref`.
+- Keep repeated math shapes, such as compact matrices or Gaussian binomials, in the template or preamble layer instead of redefining them inside chapters.
 
 ## Template Bundle Rules
 
@@ -125,3 +130,5 @@ python scripts/quality_gate.py project --ir work/docx_semantic_ir.json --output 
 ```
 
 The table coverage check should warn when the IR contains extracted tables but the generated LaTeX has fewer rendered table environments. Missing captions are review items, not a reason to leave table data as `% REVIEW` comments.
+
+Formula checks should warn about raw `$$`, numbered equations without labels, ordinary derivations written as numbered `align`, and manual equation-number references that should become `\eqref`.
