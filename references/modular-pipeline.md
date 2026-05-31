@@ -6,6 +6,8 @@ Use this reference when running or extending the conversion workflow.
 
 The skill is a resumable pipeline, not one large conversion pass. Each module has one responsibility, writes its own artifact, and reads upstream artifacts instead of recomputing them.
 
+The pipeline is script-backed, not script-dominated. Saved artifacts provide evidence for the AI authoring pass; they do not replace context-aware judgment.
+
 ## Principles
 
 - Keep modules single-purpose and independently rerunnable.
@@ -30,7 +32,7 @@ work/
   docx_semantic_ir_summary.md
   docx_authoring_brief.md
   template_analysis.json
-  template_requirements.json
+  format_requirements.json
   authoring_plan.md
 project/
   main.tex
@@ -58,7 +60,7 @@ project/
 
 4. Template analysis and preprocessing
    - Input: template files and format requirements
-   - Output: `work/template_analysis.json`, `work/template_requirements.json`
+   - Output: `work/template_analysis.json`, `work/format_requirements.json`
    - Rerun when the template or requirements change.
 
 5. Authoring plan
@@ -102,7 +104,19 @@ Record module state in:
 work/pipeline_manifest.json
 ```
 
-After a module runs, record its inputs and outputs:
+Prefer running modules through `scripts/run_module.py` so successful commands automatically record their inputs and outputs:
+
+```bash
+python scripts/run_module.py \
+  --module docx_semantic_extraction \
+  --input source/original.docx \
+  --output work/docx_semantic_ir.json \
+  --output work/docx_semantic_ir_summary.md \
+  --output work/docx_assets \
+  -- python scripts/build_docx_semantic_ir.py source/original.docx --output work/docx_semantic_ir.json --summary work/docx_semantic_ir_summary.md --asset-dir work/docx_assets
+```
+
+For modules run manually or edited by hand, record their inputs and outputs afterward:
 
 ```bash
 python scripts/pipeline_manifest.py record \

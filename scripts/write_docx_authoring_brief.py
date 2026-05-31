@@ -57,7 +57,7 @@ def write_brief(ir: dict[str, Any]) -> str:
     lines = [
         "# DOCX-to-LaTeX Authoring Brief",
         "",
-        "This brief is for AI authoring. Use it with the DOCX source and template requirements before writing final LaTeX.",
+        "This brief is for AI authoring. Use it with the DOCX source, template profile, and format requirements before writing final LaTeX.",
         "",
         "## Non-Negotiable Rules",
         "",

@@ -34,6 +34,7 @@ The workflow should be used for explicit slash-command requests and for plain-la
 This skill behaves like an academic editing assistant, not a format dumper. It should:
 
 - understand the Word draft before writing LaTeX
+- use scripts as evidence and guardrails, not as substitutes for AI semantic judgment
 - normalize structure without inventing missing facts
 - separate content from style
 - rebuild academic tables as semantic three-line LaTeX tables instead of copying Word borders
@@ -85,6 +86,7 @@ This skill behaves like an academic editing assistant, not a format dumper. It s
 - `scripts/build_docx_semantic_ir.py`: DOCX semantic IR and defect report.
 - `scripts/write_docx_authoring_brief.py`: AI authoring brief from DOCX IR.
 - `scripts/write_authoring_plan.py`: resumable authoring plan from saved artifacts.
+- `scripts/run_module.py`: run one pipeline module and record successful inputs/outputs.
 - `scripts/pipeline_manifest.py`: record and check module input/output freshness.
 - `scripts/analyze_template.py`: LaTeX template analysis.
 - `scripts/extract_format_requirements.py`: formatting requirement extraction.

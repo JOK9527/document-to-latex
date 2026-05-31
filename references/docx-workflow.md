@@ -21,64 +21,66 @@ After this, proceed and record assumptions. Avoid stopping repeatedly for issues
 Run source detection first and save the output:
 
 ```bash
-python scripts/detect_document.py source/original.docx \
-  --output work/document_profile.json
-
-python scripts/pipeline_manifest.py record \
+python scripts/run_module.py \
   --module source_inventory \
   --input source/original.docx \
   --output work/document_profile.json \
-  --command "python scripts/detect_document.py source/original.docx --output work/document_profile.json"
+  -- python scripts/detect_document.py source/original.docx --output work/document_profile.json
 ```
 
 Run:
 
 ```bash
-python scripts/build_docx_semantic_ir.py source/original.docx \
-  --output work/docx_semantic_ir.json \
-  --summary work/docx_semantic_ir_summary.md \
-  --asset-dir work/docx_assets
-
-python scripts/pipeline_manifest.py record \
+python scripts/run_module.py \
   --module docx_semantic_extraction \
   --input source/original.docx \
   --output work/docx_semantic_ir.json \
   --output work/docx_semantic_ir_summary.md \
   --output work/docx_assets \
-  --command "python scripts/build_docx_semantic_ir.py source/original.docx --output work/docx_semantic_ir.json --summary work/docx_semantic_ir_summary.md --asset-dir work/docx_assets"
+  -- python scripts/build_docx_semantic_ir.py source/original.docx --output work/docx_semantic_ir.json --summary work/docx_semantic_ir_summary.md --asset-dir work/docx_assets
 ```
 
 Then run:
 
 ```bash
-python scripts/write_docx_authoring_brief.py work/docx_semantic_ir.json \
-  --output work/docx_authoring_brief.md
-
-python scripts/pipeline_manifest.py record \
+python scripts/run_module.py \
   --module authoring_brief \
   --input work/docx_semantic_ir.json \
   --output work/docx_authoring_brief.md \
-  --command "python scripts/write_docx_authoring_brief.py work/docx_semantic_ir.json --output work/docx_authoring_brief.md"
+  -- python scripts/write_docx_authoring_brief.py work/docx_semantic_ir.json --output work/docx_authoring_brief.md
 ```
 
 If a template or format guide is present, save reusable analysis:
 
 ```bash
-python scripts/analyze_template.py source/template \
-  --output work/template_analysis.json
+python scripts/run_module.py \
+  --module template_analysis \
+  --input source/template \
+  --output work/template_analysis.json \
+  -- python scripts/analyze_template.py source/template --output work/template_analysis.json
 
-python scripts/extract_format_requirements.py source/format-guide.txt \
-  --output work/template_requirements.json
+python scripts/run_module.py \
+  --module format_requirements \
+  --input source/format-guide.txt \
+  --output work/format_requirements.json \
+  -- python scripts/extract_format_requirements.py source/format-guide.txt --output work/format_requirements.json
 ```
 
 Then create the authoring plan:
 
 ```bash
-python scripts/write_authoring_plan.py \
+python scripts/run_module.py \
+  --module authoring_plan \
+  --input work/docx_authoring_brief.md \
+  --input work/docx_semantic_ir.json \
+  --input work/template_analysis.json \
+  --input work/format_requirements.json \
+  --output work/authoring_plan.md \
+  -- python scripts/write_authoring_plan.py \
   --brief work/docx_authoring_brief.md \
   --ir work/docx_semantic_ir.json \
   --template-profile work/template_analysis.json \
-  --format-requirements work/template_requirements.json \
+  --format-requirements work/format_requirements.json \
   --output work/authoring_plan.md
 ```
 
@@ -167,7 +169,7 @@ python scripts/write_conversion_report.py \
   --metadata work/document_profile.json \
   --compile-result project/compile_result.json \
   --template-profile work/template_analysis.json \
-  --format-requirements work/template_requirements.json \
+  --format-requirements work/format_requirements.json \
   --quality-gate project/quality_gate.json \
   --output project/conversion_report.md
 ```

@@ -22,6 +22,7 @@ Use this skill for explicit slash-command requests and for plain-language reques
 - Generate a complete LaTeX project, not only a single `.tex` file.
 - Keep content and style separated.
 - Run the workflow as modular, resumable stages with saved intermediate artifacts.
+- Keep AI judgment central: scripts provide evidence and guardrails, while the AI makes context-aware authoring decisions.
 - Adapt to user templates without rewriting template internals unless required for compilation.
 - Normalize academic structure: title, metadata, abstract, keywords, chapters, sections, figures, tables, equations, citations, bibliography, appendices, and acknowledgements.
 - Treat Word formulas as imperfect content, not reliable formatting; rebuild equation environments, numbering, labels, and references under LaTeX rules.
@@ -105,13 +106,13 @@ Handle these defects as follows:
 - When a formula-shape issue is confirmed, search the full chapter or project for the same macro/context instead of fixing only the reported location.
 - Normalize table structure only when the result is faithful and reviewable.
 - Convert clear academic tables to three-line tables using template-native table commands or `booktabs` (`\toprule`, `\midrule`, `\bottomrule`). Avoid `\hline` grids copied from Word styling.
-- Never omit an extracted Word data table just because it lacks a caption. Render it with a conservative provisional caption and record the assumption in `conversion_report.md`.
+- Do not omit an extracted Word data table just because it lacks a caption when rows and cells are meaningful. Render it with a conservative provisional caption and record the assumption in `conversion_report.md`; use an in-place review note for damaged, empty, or layout-only tables.
 - Treat adjacent or grid-aligned images as a possible figure group before emitting independent figures.
 - For figure groups, choose one of these policies and record the choice: shared group caption, separate captions, subfigures with labels such as `(a)`, `(b)`, `(c)`, or in-place review placeholder when the relationship is unclear.
-- Do not use `longtable` to lay out image groups. Use a figure/subfigure/minipage layout when confident, or keep an in-place figure-group placeholder.
+- Avoid using `longtable` to lay out image groups. Use a figure/subfigure/minipage layout when confident, or keep an in-place figure-group placeholder.
 - Keep uncertain formulas, rough tables, and ambiguous image groups in their source position as visible review placeholders when faithful reconstruction is unsafe.
 - Preserve WMF/EMF formula images by converting them to a supported fallback such as PNG/PDF when possible. If conversion fidelity is uncertain, include the fallback in place and mark it for manual review.
-- Without reliable visual or formula parsing, do not guess LaTeX for image-only formulas. Keep the formula image or a visible placeholder in the original location.
+- Without reliable visual or formula parsing, do not guess LaTeX for image-only formulas. If visual/context confidence is high, reconstruct editable LaTeX and mark it for review; otherwise keep the formula image or a visible placeholder in the original location.
 - Record unresolved defects in `conversion_report.md`.
 
 ## Template Handling
@@ -177,6 +178,7 @@ Use `scripts/quality_gate.py --fail-on-warning` only for strict delivery checks.
 ## References
 
 - Read `references/docx-workflow.md` for the active source strategy.
+- Read `references/ai-authoring.md` for the AI/script responsibility boundary.
 - Read `references/user-guidance.md` before asking preflight questions.
 - Read `references/format-requirements.md` when requirements are typed or uploaded.
 - Read `references/template-preprocessing.md` before adapting most user templates.
@@ -199,6 +201,7 @@ Use `scripts/quality_gate.py --fail-on-warning` only for strict delivery checks.
 - `scripts/analyze_template.py`: LaTeX template analysis.
 - `scripts/extract_format_requirements.py`: formatting requirement extraction.
 - `scripts/write_authoring_plan.py`: resumable authoring plan from saved artifacts.
+- `scripts/run_module.py`: run one pipeline module and record successful inputs/outputs.
 - `scripts/pipeline_manifest.py`: record and check module input/output freshness for resumable runs.
 - `scripts/compile_latex.py`: local compile helper.
 - `scripts/quality_gate.py`: delivery checks for structure, mojibake, missing review artifacts, formula normalization, table style, and optional DOCX IR table coverage.
