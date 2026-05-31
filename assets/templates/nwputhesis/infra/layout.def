@@ -7,6 +7,14 @@
 \dim_set:Nn \parindent { \nwpuParIndent }
 \skip_set:Nn \parskip { \nwpuParSkip }
 \linespread{\nwpuBodyLineSpread}                            % 行距
+\cs_new_protected:Npn \nwpu_normalize_matrix_environment:
+  {
+    \baselineskip=14.5pt\relax
+    \lineskip=1pt\relax
+    \cs_set:Npn \arraystretch { 1 }
+  }
+\clist_map_inline:nn { matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix }
+  { \AddToHook{env/#1/begin}{\nwpu_normalize_matrix_environment:} }
 %%-----------------------------------------------------------------------------%
 \RequirePackage{ulem}                                       % 下划线
 \NewDocumentCommand \coverunderline { O{\nwpuUnderlineDefaultWidth} m }

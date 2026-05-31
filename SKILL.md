@@ -135,7 +135,10 @@ Run `scripts/write_docx_authoring_brief.py` and read the brief before writing La
 - Number only core definition/theorem/lemma/proposition formulas or formulas explicitly referenced later.
 - Use `equation + label` for numbered formulas, `equation + aligned` for one logical multi-line numbered formula, and `\[ aligned \]` for unnumbered derivations.
 - Replace manual equation references with `\eqref` when the target is clear, and record ambiguous references in the report.
-- Define repeated math shapes such as compact matrices or Gaussian binomials as template-level macros instead of hand-tuning each occurrence.
+- Use standard matrix environments for ordinary matrices. If compiled matrices are stretched while editor previews look normal, diagnose template `\baselineskip`, `\fontsize`, `\arraystretch`, and matrix hooks before changing chapter formulas.
+- Keep short inline Gaussian-binomial calculations in place with `\displaystyle`; use local spacing for consecutive tall inline formulas instead of changing global line spacing.
+- Define repeated special math shapes such as Gaussian binomials as template-level macros, but keep compact matrix macros as fallbacks rather than the ordinary matrix path.
+- When a formula-shape issue is confirmed, search the full chapter or project for the same macro/context instead of fixing only the reported location.
 - Preserve WMF/EMF formula images by converting them to a supported fallback such as PNG/PDF when possible. If conversion fidelity is uncertain, include the fallback in place and mark it for manual review.
 - Without reliable visual or formula parsing, do not guess LaTeX for image-only formulas. Keep the formula image or a visible placeholder in the original location.
 - Put generated figures under `content/figures/`.

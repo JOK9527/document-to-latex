@@ -249,6 +249,7 @@ def check_formula_normalization(project: Path) -> list[dict[str, Any]]:
     numbered_align: list[str] = []
     unlabeled_equations: list[str] = []
     manual_equation_refs: list[str] = []
+    inline_gbinom_without_displaystyle: list[str] = []
 
     manual_ref_pattern = re.compile(
         r"(?:formula|equation|eq\.|\u5f0f|\u516c\u5f0f)\s*[~ ]*[\(\uff08]\s*\d+(?:[-.]\d+)+\s*[\)\uff09]",
@@ -261,6 +262,11 @@ def check_formula_normalization(project: Path) -> list[dict[str, Any]]:
             raw_display_math.append(str(path))
         if manual_ref_pattern.search(text):
             manual_equation_refs.append(str(path))
+        for match in re.finditer(r"\\\((.*?)\\\)", text, re.S):
+            inline_math = match.group(1)
+            if r"\gbinom" in inline_math and r"\displaystyle" not in inline_math:
+                inline_gbinom_without_displaystyle.append(str(path))
+                break
         for _, block in environment_blocks(text, ("equation",)):
             if r"\label{" not in block:
                 unlabeled_equations.append(str(path))
@@ -304,6 +310,15 @@ def check_formula_normalization(project: Path) -> list[dict[str, Any]]:
                 "check": "formula_references",
                 "message": "Manual equation-number references remain. Convert clear targets to \\label plus \\eqref.",
                 "paths": sorted(set(manual_equation_refs)),
+            }
+        )
+    if inline_gbinom_without_displaystyle:
+        findings.append(
+            {
+                "severity": "warning",
+                "check": "formula_inline_style",
+                "message": "Inline \\gbinom appears without \\displaystyle. Short inline Gaussian-binomial calculations usually need \\displaystyle; long formulas should be reviewed for display math.",
+                "paths": sorted(set(inline_gbinom_without_displaystyle)),
             }
         )
 

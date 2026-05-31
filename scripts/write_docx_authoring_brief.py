@@ -129,7 +129,10 @@ def write_brief(ir: dict[str, Any]) -> str:
             "- Use inline math for prose formulas, `\\[...\\]` for ordinary displays, `\\[ \\begin{aligned}...\\end{aligned} \\]` for unnumbered derivations, and `equation` with `\\label` for core numbered formulas.",
             "- Use `equation + aligned` when one logical formula needs multiple lines but only one number.",
             "- Avoid numbered `align` unless every row is independently referenced.",
-            "- Define repeated math shapes in the template or preamble instead of hand-tuning each occurrence.",
+            "- Use standard `pmatrix`/`bmatrix`/`matrix` for ordinary matrices. If compiled matrices look stretched while the source looks normal, inspect template line-height hooks before changing body formulas.",
+            "- Keep short inline Gaussian binomial calculations in place with `\\displaystyle`; do not detach them into centered display math unless they are genuinely long.",
+            "- When one formula-shape issue is confirmed, search the whole chapter or project for the same macro/context before stopping.",
+            "- Define repeated special math shapes in the template or preamble, but keep compact matrix macros as fallbacks rather than the ordinary matrix path.",
             "",
         ]
     )

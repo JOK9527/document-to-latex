@@ -72,7 +72,10 @@ Treat these files as module boundaries. If the DOCX has not changed, reuse the s
 - Use inline math for prose formulas, unnumbered display math for examples and proof steps, and numbered `equation` only for core formulas or explicit later references.
 - Use `equation + aligned` for one logical multi-line numbered formula; use `\[ aligned \]` for unnumbered derivations.
 - Do not preserve manual equation numbers; create semantic labels and use `\eqref` when the target is clear.
-- Keep repeated math shapes in template-level macros instead of hand-tuning individual formulas.
+- Use standard matrix environments for ordinary matrices. If compiled matrices look stretched while the source or editor preview looks normal, inspect template line-height and matrix hooks before rewriting formulas.
+- Keep short inline Gaussian-binomial calculations inline with `\displaystyle`; add local spacing for repeated tall inline calculations instead of changing global line spacing.
+- Keep repeated special math shapes in template-level macros, but do not replace ordinary matrices with compact macros unless there is a documented exception.
+- After confirming a formula-shape issue, search the full chapter or project for the same macro/context before stopping.
 - Preserve uncertain formulas in place as review notes or image fallbacks.
 - Convert WMF/EMF formula images to PNG/PDF fallbacks before delivery when possible. If fidelity is uncertain, keep the fallback in place and mark it for manual review.
 - Normalize obvious punctuation and spacing noise, but do not rewrite technical claims.

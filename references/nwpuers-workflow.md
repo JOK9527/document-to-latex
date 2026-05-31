@@ -106,7 +106,10 @@ Do not invent committee members, student numbers, authorization signatures, or a
 - Use inline math for prose formulas, unnumbered display math for examples and proof steps, and numbered `equation` only for core formulas or formulas explicitly referenced later.
 - Use `equation + aligned` for one logical multi-line numbered formula; use `\[ aligned \]` for unnumbered derivations.
 - Replace clear manual equation numbers with semantic `eq:` labels and `\eqref`.
-- Keep repeated math shapes, such as compact matrices or Gaussian binomials, in the template or preamble layer instead of redefining them inside chapters.
+- Use standard `pmatrix`, `bmatrix`, and `matrix` for ordinary matrices. If the compiled NWPU PDF stretches matrices, fix the template matrix hooks or line-height pollution rather than rewriting chapter formulas.
+- Keep short inline Gaussian-binomial calculations inline with `\displaystyle`; use local `\vspace` or `enumerate` `\itemsep` only for dense consecutive tall-inline calculation blocks.
+- Keep repeated special math shapes, such as Gaussian binomials, in the template or preamble layer. Compact matrix macros are fallbacks, not the default ordinary matrix representation.
+- After confirming a formula-shape issue, search the full chapter or project for the same macro/context before stopping.
 
 ## Template Bundle Rules
 
