@@ -39,6 +39,14 @@ Intermediate artifacts are handoffs, not commands. If the AI finds that the IR, 
 
 Quality gate findings are prompts for judgment unless they are clear delivery blockers such as missing required files, unresolved graphics, compilation failure, or content loss.
 
+## Defaults vs Hard Stops
+
+Treat most formatting rules as defaults that can be overridden with evidence. This includes provisional captions, inline versus display math, formula numbering, image grouping, table interpretation, and compact macro fallbacks.
+
+Keep hard stops for issues that would damage the deliverable: silent content loss, invented technical facts, unrecoverable missing assets, unresolved compilation failure, source files edited in place, or unsupported graphics/formulas dropped without a visible fallback.
+
+When overriding a default, leave a concise note in `conversion_report.md` explaining the local evidence.
+
 ## Avoid Over-Automation
 
 Do not replace semantic judgment with broad mechanical rules. Prefer warnings over hard failures for issues that require context, such as inline display style, formula numbering, provisional captions, and uncertain references.

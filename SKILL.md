@@ -185,6 +185,7 @@ Use `scripts/quality_gate.py --fail-on-warning` only for strict delivery checks.
 - Read `references/formula-normalization.md` before reconstructing formulas from Word or PDF references.
 - Read `references/chinese-latex.md` for Chinese text.
 - Read `references/modular-pipeline.md` for standard module IDs, saved outputs, and resume rules.
+- Read `references/latex-maintainability.md` for maintainable LaTeX.
 - Read `references/troubleshooting.md` when compilation fails.
 
 ## Scripts

@@ -133,7 +133,7 @@ Use standard matrix environments for ordinary matrices:
 \end{pmatrix}
 ```
 
-Do not rewrite ordinary matrices to a compact macro as the first response to bad PDF output. If an editor preview looks normal but the compiled PDF makes matrices tall and narrow, inspect the template first:
+Avoid rewriting ordinary matrices to a compact macro as the first response to bad PDF output. If an editor preview looks normal but the compiled PDF makes matrices tall and narrow, inspect the template first:
 
 - global `\baselineskip`
 - `\fontsize{12pt}{23.4pt}`-style body font settings
@@ -158,9 +158,9 @@ When a short Gaussian binomial calculation appears inline after prose or manual 
 1. \(\displaystyle \gbinom{0}{0}{2}=1\).
 ```
 
-Do not convert short inline list calculations to centered display equations unless the formula is genuinely long. Display math can detach the formula from the local list or example structure.
+Avoid converting short inline list calculations to centered display equations unless the formula is genuinely long. Display math can detach the formula from the local list or example structure.
 
-If several `\displaystyle \gbinom` lines appear consecutively and become visually tight, add local spacing only for that calculation block, such as a small `\vspace{0.3em}` or an `enumerate` with a local `\itemsep`. Do not change the global body line spacing to fix a local tall-inline-formula problem.
+If several `\displaystyle \gbinom` lines appear consecutively and become visually tight, add local spacing only for that calculation block, such as a small `\vspace{0.3em}` or an `enumerate` with a local `\itemsep`. Avoid changing global body line spacing to fix a local tall-inline-formula problem.
 
 When fixing a Gaussian binomial display issue, search the whole chapter or project for similar contexts, not only the reported lemma or example.
 

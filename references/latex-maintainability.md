@@ -30,4 +30,4 @@ Prefer semantic macros when a repeated concept appears. Define them in the templ
 
 Common formula macros may include Gaussian binomials, trace/rank operators, or other domain-specific symbols that would otherwise be hand-built repeatedly. Use macros to make the formula shape consistent, but do not hide one-off mathematical content behind opaque commands.
 
-Do not use compact matrix macros as the default representation for ordinary matrices. Prefer standard `matrix`, `pmatrix`, and `bmatrix`; if compiled matrices are visually stretched, diagnose template line-height and matrix hooks first.
+Avoid compact matrix macros as the default representation for ordinary matrices. Prefer standard `matrix`, `pmatrix`, and `bmatrix`; if compiled matrices are visually stretched, diagnose template line-height and matrix hooks first.

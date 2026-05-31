@@ -420,7 +420,7 @@ def check_table_placeholders(project: Path) -> list[dict[str, Any]]:
             {
                 "severity": "warning",
                 "check": "table_placeholders",
-                "message": "Table-related REVIEW placeholders remain in LaTeX; extracted tables should be rendered, not left as comments.",
+                "message": "Table-related REVIEW placeholders remain in LaTeX; verify they are damaged, empty, layout-only, or otherwise intentionally deferred.",
                 "paths": offenders,
             }
         )
@@ -438,7 +438,7 @@ def check_table_coverage(project: Path, ir: dict[str, Any] | None) -> list[dict[
             {
                 "severity": "warning",
                 "check": "table_coverage",
-                "message": f"DOCX IR has {extracted} extracted table(s), but LaTeX appears to render only {rendered}. Missing captions are not a reason to omit tables.",
+                "message": f"DOCX IR has {extracted} extracted table(s), but LaTeX appears to render only {rendered}. Missing captions are not a reason to omit meaningful data tables; verify any skipped tables are damaged, empty, or layout-only.",
             }
         )
     return findings

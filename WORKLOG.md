@@ -12,6 +12,7 @@ Tighten the modular architecture around AI-led authoring with script-backed evid
 - Reframed `work/authoring_plan.md` as a resumable execution index instead of a duplicated authoring brief.
 - Softened overly absolute rules for damaged tables, image groups, and image-only formulas so high-confidence contextual reconstruction remains available with review notes.
 - Standardized pipeline format requirements as `work/format_requirements.json`.
+- Added a standard module contract table for module IDs, inputs, outputs, runners, and rerun triggers.
 
 ### Added
 
