@@ -39,6 +39,8 @@ For graduate theses, default to academic degree. Ask about professional degree o
 10. Run the quality gate, preferably with the DOCX semantic IR for table coverage checks.
 11. Write a conversion report.
 
+Each stage should save its output under `work/` or `project/` so extraction, planning, project creation, authoring, compilation, quality checks, and reporting can be rerun independently.
+
 ## V1.3 Focus
 
 - Treat Word formulas as imperfect content rather than reliable formatting.
@@ -46,6 +48,7 @@ For graduate theses, default to academic degree. Ask about professional degree o
 - Prefer semantic `\label` plus `\eqref` over manual equation numbers copied from Word.
 - Keep ordinary examples and proof steps unnumbered while numbering core formulas and later-referenced formulas.
 - Use shared formula macros for repeated math shapes so visual form stays consistent across chapters.
+- Make the workflow more modular: source profiling, thesis type decision, DOCX extraction, authoring brief, NWPU project creation, LaTeX authoring, compilation, quality gate, and reporting each produce saved outputs and can be rerun independently.
 
 ## V1.2 Focus
 

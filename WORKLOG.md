@@ -1,14 +1,15 @@
 # Worklog
 
-## v1.3 - 2026-05-31
+## v1.3 - 2026-06-01
 
 ### Direction
 
-Rebuild formula handling for imperfect Word sources instead of trusting Word or PDF equation formatting.
+Rebuild formula handling for imperfect Word sources and make the conversion workflow modular, loosely coupled, and resumable.
 
 ### Added
 
 - Formula normalization policy covering content fidelity, equation environments, numbering, labels, `\eqref`, and repeated math-shape macros.
+- Modular pipeline policy with saved artifacts for source profiling, thesis type decision, DOCX extraction, authoring brief, NWPU project creation, LaTeX authoring, compilation, quality gate, and reporting.
 - Authoring brief guidance that treats Word equation spacing, line breaks, indentation, and manual numbers as draft signals only.
 - Quality-gate warnings for raw `$$`, numbered equations without labels, ordinary numbered `align`, manual equation-number references, and missing chapter equation-numbering configuration.
 - Template-level `\rankmat` and `\gbinom` helpers, plus chapter equation numbering in chapter-based skeletons.
@@ -18,6 +19,7 @@ Rebuild formula handling for imperfect Word sources instead of trusting Word or 
 - Do not alter mathematical meaning while fixing formula structure.
 - Do not number example calculations or proof intermediate steps unless later prose clearly references them.
 - Do not preserve manual equation numbers when semantic labels and `\eqref` can be used.
+- Do not rerun the whole conversion when a saved upstream artifact is still valid and a downstream module can be rerun independently.
 
 ## v1.2 - 2026-05-28
 

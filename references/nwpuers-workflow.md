@@ -39,6 +39,8 @@ python scripts/create_nwputhesis_project.py project --type master --professional
 
 The generated project intentionally contains only the selected undergraduate or graduate content tree.
 
+Record the thesis type decision under `work/` before creating the project. If the decision and template bundle have not changed, reuse the generated `project/` skeleton and continue from authoring, compilation, quality gate, or reporting as needed.
+
 ## Undergraduate Mapping
 
 Use:
@@ -132,3 +134,11 @@ python scripts/quality_gate.py project --ir work/docx_semantic_ir.json --output 
 The table coverage check should warn when the IR contains extracted tables but the generated LaTeX has fewer rendered table environments. Missing captions are review items, not a reason to leave table data as `% REVIEW` comments.
 
 Formula checks should warn about raw `$$`, numbered equations without labels, ordinary derivations written as numbered `align`, and manual equation-number references that should become `\eqref`.
+
+## Resume Rules
+
+- Reuse `work/docx_semantic_ir.json` when the DOCX source has not changed.
+- Reuse `work/docx_authoring_brief.md` when the semantic IR has not changed.
+- Reuse `project/` when the thesis type and embedded template version have not changed.
+- Rerun only the affected chapter or asset authoring module when local content changes.
+- After any downstream change, rerun compilation, quality gate, and conversion report instead of repeating extraction.

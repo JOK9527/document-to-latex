@@ -36,6 +36,8 @@ python scripts/write_docx_authoring_brief.py work/docx_semantic_ir.json \
 
 Read both files before writing LaTeX.
 
+Treat these files as module boundaries. If the DOCX has not changed, reuse the semantic IR. If the IR has not changed, reuse the authoring brief. Resume downstream work from these saved artifacts instead of restarting the whole workflow.
+
 ## What To Inspect
 
 - heading styles and heading-like paragraphs
@@ -97,3 +99,5 @@ Common defects:
 ## Output
 
 Use the `nwputhesis` structure created by `scripts/create_nwputhesis_project.py`. Keep generated content out of `source/`, keep style out of chapter files, and keep review comments close to uncertain conversions.
+
+Save module outputs under `work/` and final delivery outputs under `project/` so extraction, planning, project creation, authoring, compilation, quality checks, and reporting can be rerun independently.

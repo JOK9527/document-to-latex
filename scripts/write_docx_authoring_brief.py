@@ -71,6 +71,7 @@ def write_brief(ir: dict[str, Any]) -> str:
         "- Treat Word/PDF formula layout as untrusted: preserve math content, then rebuild LaTeX environments, numbering, labels, references, and visual form.",
         "- Number only core formulas or formulas explicitly referenced later; use unnumbered display math for examples, substitutions, and proof steps.",
         "- Replace clear manual equation numbers and references with semantic labels and \\eqref.",
+        "- Treat each pipeline stage as resumable: read saved upstream artifacts and write downstream artifacts instead of relying on hidden state.",
         "- Mark uncertain tables, captions, formulas, and references in the report.",
         "- Ask no extra questions unless a missing answer materially changes the output.",
         "",
@@ -138,6 +139,15 @@ def write_brief(ir: dict[str, Any]) -> str:
     for equation in equations:
         hint = shorten(equation.get("text_hint"), 120) or "(no text hint)"
         lines.append(f"- {equation.get('id')} near {equation.get('paragraph_id')}: {hint}; reconstruct as editable LaTeX if reliable, otherwise keep an in-place review fallback.")
+
+    lines.extend(["", "## Pipeline Artifacts", ""])
+    lines.extend(
+        [
+            "- Read this brief as the saved planning artifact for downstream LaTeX authoring.",
+            "- Reuse `work/docx_semantic_ir.json` and this brief when the DOCX source has not changed.",
+            "- Save thesis type decisions, generated LaTeX, quality gate output, and conversion report as separate artifacts so each stage can be rerun independently.",
+        ]
+    )
 
     lines.extend(["", "## Authoring Plan", ""])
     lines.extend(
