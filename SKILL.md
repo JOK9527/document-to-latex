@@ -21,8 +21,10 @@ Use this skill for explicit slash-command requests and for plain-language reques
 - Preserve original materials under `source/`.
 - Generate a complete LaTeX project, not only a single `.tex` file.
 - Keep content and style separated.
+- Run the workflow as modular, resumable stages with saved intermediate artifacts.
 - Adapt to user templates without rewriting template internals unless required for compilation.
 - Normalize academic structure: title, metadata, abstract, keywords, chapters, sections, figures, tables, equations, citations, bibliography, appendices, and acknowledgements.
+- Treat Word formulas as imperfect content, not reliable formatting; rebuild equation environments, numbering, labels, and references under LaTeX rules.
 - Rebuild academic tables as LaTeX three-line tables by default; do not preserve Word border styling unless the template or user explicitly requires it.
 - Preserve figure, table, and formula positions when conversion confidence is low.
 - Detect source defects and record them instead of silently guessing.
@@ -44,12 +46,12 @@ Do not ask a long intake form. Record assumptions in `conversion_report.md`.
 
 1. Inspect `source/` for DOC/DOCX files, templates, format guides, and optional PDF references.
 2. Complete the mandatory preflight gate.
-3. Run `scripts/detect_document.py` on the primary Word source.
-4. For DOCX, run `scripts/build_docx_semantic_ir.py`.
-5. Run `scripts/write_docx_authoring_brief.py` and read the brief before writing LaTeX.
-6. Analyze and preprocess any user-provided LaTeX template.
+3. Run `scripts/detect_document.py` on the primary Word source and save the profile under `work/`.
+4. For DOCX, run `scripts/build_docx_semantic_ir.py` and save the IR, summary, and extracted assets.
+5. Run `scripts/write_docx_authoring_brief.py`, save `work/docx_authoring_brief.md`, and read it before writing LaTeX.
+6. Analyze and preprocess any user-provided LaTeX template, saving reusable analysis under `work/`.
 7. If no template is provided, choose a default skeleton from `assets/templates/`.
-8. Write LaTeX as an editor: clean structure, fix obvious formatting noise, preserve meaning, and mark uncertain conversions.
+8. Write LaTeX as an editor: clean structure, fix obvious formatting noise, preserve meaning, rebuild formula formatting, and mark uncertain conversions.
 9. Keep figures, small/medium tables, formulas, and local review notes near the relevant text.
 10. Compile if possible.
 11. Run `scripts/quality_gate.py`.
@@ -92,6 +94,11 @@ Handle these defects as follows:
 - Do not invent missing data, captions, or references.
 - Give generated captions only when the image role is clear, and mark them in the report.
 - Preserve uncertain formulas as review notes or image fallbacks when editable reconstruction is unsafe.
+- For reliable formulas, ignore Word spacing, line breaks, indentation, and manual equation numbers; reconstruct the ideal LaTeX environment.
+- Number only core definition/theorem/lemma/proposition formulas or formulas explicitly referenced later.
+- Use `equation + label` for numbered formulas, `equation + aligned` for one logical multi-line numbered formula, and `\[ aligned \]` for unnumbered derivations.
+- Replace manual equation references with `\eqref` when the target is clear, and record ambiguous references in the report.
+- Define repeated math shapes such as compact matrices or Gaussian binomials as template-level macros instead of hand-tuning each occurrence.
 - Normalize table structure only when the result is faithful and reviewable.
 - Convert clear academic tables to three-line tables using template-native table commands or `booktabs` (`\toprule`, `\midrule`, `\bottomrule`). Avoid `\hline` grids copied from Word styling.
 - Never omit an extracted Word data table just because it lacks a caption. Render it with a conservative provisional caption and record the assumption in `conversion_report.md`.
@@ -137,6 +144,21 @@ Use a layered layout:
 
 Read `references/output-project-structure.md`, `references/chapter-splitting.md`, and `references/content-structure.md` before generating files.
 
+## Modular Pipeline
+
+Treat conversion as independent modules with saved outputs. Each module must be independently rerunnable from its declared inputs:
+
+- source inventory writes a profile under `work/`
+- DOCX extraction writes `work/docx_semantic_ir.json`
+- authoring brief writes `work/docx_authoring_brief.md`
+- template analysis writes reusable analysis under `work/`
+- LaTeX authoring writes chapter and asset files under `project/`
+- compilation writes logs and repair notes
+- quality gate writes `project/quality_gate.md` or JSON
+- conversion reporting writes `project/conversion_report.md`
+
+When resuming, reuse existing upstream artifacts if their inputs have not changed. Do not rerun the whole pipeline when a single module can be rerun safely.
+
 ## Quality Modes
 
 Default to balanced quality checks.
@@ -158,7 +180,9 @@ Use `scripts/quality_gate.py --fail-on-warning` only for strict delivery checks.
 - Read `references/chapter-splitting.md` for long documents.
 - Read `references/content-structure.md` for figures, tables, data, and style separation.
 - Read `references/cross-references.md` for labels, refs, citations, and naming rules.
+- Read `references/formula-normalization.md` before reconstructing formulas from Word or PDF references.
 - Read `references/latex-maintainability.md` for maintainable LaTeX.
+- Read `references/modular-pipeline.md` for module boundaries, saved outputs, and resume rules.
 - Read `references/chinese-latex.md` for Chinese documents.
 - Read `references/troubleshooting.md` when compilation fails.
 
@@ -170,5 +194,5 @@ Use `scripts/quality_gate.py --fail-on-warning` only for strict delivery checks.
 - `scripts/analyze_template.py`: LaTeX template analysis.
 - `scripts/extract_format_requirements.py`: formatting requirement extraction.
 - `scripts/compile_latex.py`: local compile helper.
-- `scripts/quality_gate.py`: delivery checks for structure, mojibake, missing review artifacts, table style, and optional DOCX IR table coverage.
+- `scripts/quality_gate.py`: delivery checks for structure, mojibake, missing review artifacts, formula normalization, table style, and optional DOCX IR table coverage.
 - `scripts/write_conversion_report.py`: conversion report writer.

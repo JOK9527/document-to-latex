@@ -5,8 +5,14 @@
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{tabularx}
-\usepackage{amsmath,amssymb}
+\usepackage{amsmath,amssymb,mathtools}
 \usepackage[hidelinks]{hyperref}
+
+\providecommand{\rankmat}[1]{%
+  {\renewcommand{\arraystretch}{0.92}%
+  \left(\begin{matrix}#1\end{matrix}\right)}%
+}
+\providecommand{\gbinom}[3]{\genfrac{[}{]}{0pt}{}{#1}{#2}_{#3}}
 
 % Metadata is separated from body content.
 \input{content/article/info}

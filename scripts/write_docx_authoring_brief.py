@@ -68,6 +68,10 @@ def write_brief(ir: dict[str, Any]) -> str:
         "- Rebuild clear academic tables as three-line tables; do not preserve Word border grids unless required.",
         "- Render every extracted data table in LaTeX when rows and cells are available, even if the DOCX has no caption.",
         "- For a table without a caption, infer a conservative provisional caption from nearby text or table contents and record it in the report.",
+        "- Treat Word/PDF formula layout as untrusted: preserve math content, then rebuild LaTeX environments, numbering, labels, references, and visual form.",
+        "- Number only core formulas or formulas explicitly referenced later; use unnumbered display math for examples, substitutions, and proof steps.",
+        "- Replace clear manual equation numbers and references with semantic labels and \\eqref.",
+        "- Treat each pipeline stage as resumable: read saved upstream artifacts and write downstream artifacts instead of relying on hidden state.",
         "- Mark uncertain tables, captions, formulas, and references in the report.",
         "- Ask no extra questions unless a missing answer materially changes the output.",
         "",
@@ -118,12 +122,32 @@ def write_brief(ir: dict[str, Any]) -> str:
             lines.append(f"  - Review: {note}")
 
     lines.extend(["", "## Formulas", ""])
+    lines.extend(
+        [
+            "Formula policy:",
+            "- Word/PDF spacing, line breaks, indentation, and manual equation numbers are draft signals, not authoritative formatting.",
+            "- Use inline math for prose formulas, `\\[...\\]` for ordinary displays, `\\[ \\begin{aligned}...\\end{aligned} \\]` for unnumbered derivations, and `equation` with `\\label` for core numbered formulas.",
+            "- Use `equation + aligned` when one logical formula needs multiple lines but only one number.",
+            "- Avoid numbered `align` unless every row is independently referenced.",
+            "- Define repeated math shapes in the template or preamble instead of hand-tuning each occurrence.",
+            "",
+        ]
+    )
     equations = ir.get("equations", [])
     if not equations:
         lines.append("- No OMML/math objects detected.")
     for equation in equations:
         hint = shorten(equation.get("text_hint"), 120) or "(no text hint)"
-        lines.append(f"- {equation.get('id')} near {equation.get('paragraph_id')}: {hint}; reconstruct as editable LaTeX if reliable.")
+        lines.append(f"- {equation.get('id')} near {equation.get('paragraph_id')}: {hint}; reconstruct as editable LaTeX if reliable, otherwise keep an in-place review fallback.")
+
+    lines.extend(["", "## Pipeline Artifacts", ""])
+    lines.extend(
+        [
+            "- Read this brief as the saved planning artifact for downstream LaTeX authoring.",
+            "- Reuse `work/docx_semantic_ir.json` and this brief when the DOCX source has not changed.",
+            "- Save template analysis, generated LaTeX, quality gate output, and conversion report as separate artifacts so each stage can be rerun independently.",
+        ]
+    )
 
     lines.extend(["", "## Authoring Plan", ""])
     lines.extend(
@@ -131,9 +155,10 @@ def write_brief(ir: dict[str, Any]) -> str:
             "1. Choose the target template structure.",
             "2. Map reliable DOCX headings to LaTeX sections or chapters.",
             "3. Rewrite prose into natural academic LaTeX without preserving Word styling noise.",
-            "4. Place figures, tables, and formulas near the text that explains them.",
-            "5. Keep uncertain conversions as concise LaTeX comments and report items.",
-            "6. Compile, run the quality gate, and repair the smallest responsible issues.",
+            "4. Rebuild formula environments and references under the formula normalization rules.",
+            "5. Place figures, tables, and formulas near the text that explains them.",
+            "6. Keep uncertain conversions as concise LaTeX comments and report items.",
+            "7. Compile, run the quality gate, and repair the smallest responsible issues.",
         ]
     )
     return "\n".join(lines) + "\n"

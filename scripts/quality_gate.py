@@ -76,6 +76,11 @@ def tex_files(project: Path) -> list[Path]:
     return sorted(path for path in project.rglob("*") if path.is_file() and path.suffix.lower() in TEXT_SUFFIXES)
 
 
+def latex_files(project: Path) -> list[Path]:
+    suffixes = {".tex", ".cls", ".sty", ".def"}
+    return sorted(path for path in project.rglob("*") if path.is_file() and path.suffix.lower() in suffixes)
+
+
 def image_files(project: Path) -> list[Path]:
     content = project / "content"
     root = content if content.exists() else project
@@ -238,6 +243,92 @@ def table_blocks(text: str) -> list[str]:
     return [block for _, block in environment_blocks(text, ("table", "longtable", "tabular", "tabularx", "tblr"))]
 
 
+def check_formula_normalization(project: Path) -> list[dict[str, Any]]:
+    findings: list[dict[str, Any]] = []
+    raw_display_math: list[str] = []
+    numbered_align: list[str] = []
+    unlabeled_equations: list[str] = []
+    manual_equation_refs: list[str] = []
+
+    manual_ref_pattern = re.compile(
+        r"(?:formula|equation|eq\.|\u5f0f|\u516c\u5f0f)\s*[~ ]*[\(\uff08]\s*\d+(?:[-.]\d+)+\s*[\)\uff09]",
+        re.I,
+    )
+
+    for path in latex_files(project):
+        text = read_text(path)
+        if "$$" in text:
+            raw_display_math.append(str(path))
+        if manual_ref_pattern.search(text):
+            manual_equation_refs.append(str(path))
+        for _, block in environment_blocks(text, ("equation",)):
+            if r"\label{" not in block:
+                unlabeled_equations.append(str(path))
+                break
+        for _, block in environment_blocks(text, ("align",)):
+            if r"\notag" not in block and r"\nonumber" not in block:
+                numbered_align.append(str(path))
+                break
+
+    if raw_display_math:
+        findings.append(
+            {
+                "severity": "warning",
+                "check": "formula_normalization",
+                "message": "Raw $$ display math remains; use \\[...\\] or equation environments.",
+                "paths": sorted(set(raw_display_math)),
+            }
+        )
+    if unlabeled_equations:
+        findings.append(
+            {
+                "severity": "warning",
+                "check": "formula_labels",
+                "message": "Numbered equation environments without labels were found. Numbered formulas should be referenceable with semantic eq: labels.",
+                "paths": sorted(set(unlabeled_equations)),
+            }
+        )
+    if numbered_align:
+        findings.append(
+            {
+                "severity": "warning",
+                "check": "formula_align",
+                "message": "Numbered align environments were found. Use equation+aligned for one logical formula or \\[aligned\\] for unnumbered derivations unless every row needs a reference.",
+                "paths": sorted(set(numbered_align)),
+            }
+        )
+    if manual_equation_refs:
+        findings.append(
+            {
+                "severity": "warning",
+                "check": "formula_references",
+                "message": "Manual equation-number references remain. Convert clear targets to \\label plus \\eqref.",
+                "paths": sorted(set(manual_equation_refs)),
+            }
+        )
+
+    latex_texts = [read_text(path) for path in latex_files(project)]
+    chapter_document = any(
+        re.search(r"\\documentclass(?:\[[^\]]*\])?\{(?:book|report|ctexrep|nwputhesis)\}", text)
+        for text in latex_texts
+    )
+    has_numbered_formula = any("\\begin{equation}" in text or "\\begin{align}" in text for text in latex_texts)
+    has_chapter_equation_numbering = any(
+        r"\numberwithin{equation}{chapter}" in text or r"\thechapter-\arabic{equation}" in text
+        for text in latex_texts
+    )
+    if chapter_document and has_numbered_formula and not has_chapter_equation_numbering:
+        findings.append(
+            {
+                "severity": "warning",
+                "check": "formula_numbering",
+                "message": "Chapter-based document has numbered formulas but does not configure equation numbering by chapter.",
+            }
+        )
+
+    return findings
+
+
 def check_review_placeholders(project: Path) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
     offenders: list[str] = []
@@ -367,6 +458,7 @@ def run_quality_gate(project: Path, ir: dict[str, Any] | None = None) -> dict[st
     findings.extend(check_mojibake(project))
     findings.extend(check_images(project))
     findings.extend(check_figure_table_semantics(project))
+    findings.extend(check_formula_normalization(project))
     findings.extend(check_table_coverage(project, ir))
     findings.extend(check_table_placeholders(project))
     findings.extend(check_table_style(project))

@@ -27,3 +27,5 @@ Avoid comments that restate obvious LaTeX syntax.
 ## Semantic Macros
 
 Prefer semantic macros when a repeated concept appears. Define them in the template or style layer, not in each chapter.
+
+Common formula macros may include compact matrices, Gaussian binomials, trace/rank operators, or other domain-specific symbols that would otherwise be hand-built repeatedly. Use macros to make the formula shape consistent, but do not hide one-off mathematical content behind opaque commands.
