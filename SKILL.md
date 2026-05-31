@@ -27,6 +27,7 @@ Use this skill for explicit slash-command requests and for plain-language reques
 - Generate a complete LaTeX project under `project/`.
 - Keep content and style separated.
 - Run the workflow as modular, resumable stages with saved intermediate artifacts.
+- Keep AI judgment central: scripts provide evidence and guardrails, while the AI makes context-aware NWPU thesis authoring decisions.
 - Use NWPU template-native structure and commands.
 - Treat Word formulas as imperfect content, not reliable formatting; rebuild equation environments, numbering, labels, and references under LaTeX and `nwputhesis` rules.
 - Rebuild academic tables as three-line tables by default.
@@ -49,19 +50,20 @@ For graduate theses, default to academic degree. Ask whether it is professional 
 ## Standard Workflow
 
 1. Inspect `source/` for the primary DOCX and optional reference materials.
-2. Confirm thesis type: bachelor, master, or PhD.
-3. Run `scripts/detect_document.py` on the DOCX source and save the profile under `work/`.
+2. Confirm thesis type: bachelor, master, or PhD, and record `work/thesis_type_decision.md`.
+3. Run `scripts/detect_document.py` on the DOCX source and save `work/document_profile.json`.
 4. Run `scripts/build_docx_semantic_ir.py` and save the IR, summary, and extracted assets.
 5. Run `scripts/write_docx_authoring_brief.py`, save `work/docx_authoring_brief.md`, and read the brief.
 6. Create the target project with `scripts/create_nwputhesis_project.py`, using the thesis-type decision as a reusable module input.
-7. Fill the selected template content directory:
+7. Write `work/authoring_plan.md` from the saved IR, brief, NWPU project decision, and user constraints.
+8. Fill the selected template content directory:
    - bachelor: `content/thesis/undergraduate/`
    - master or PhD: `content/thesis/graduate/`
-8. Update metadata in `info.tex`.
-9. Write chapters, abstract, references, appendices, acknowledgements, formula-normalized LaTeX, and review notes.
-10. Compile if possible.
-11. Run `scripts/quality_gate.py`.
-12. Write `conversion_report.md`.
+9. Update metadata in `info.tex`.
+10. Write chapters, abstract, references, appendices, acknowledgements, formula-normalized LaTeX, and review notes.
+11. Compile if possible and save `project/compile_result.json`.
+12. Run `scripts/quality_gate.py` and save `project/quality_gate.json` or Markdown.
+13. Write `project/conversion_report.md`.
 
 ## Project Creation
 
@@ -117,18 +119,19 @@ Run `scripts/build_docx_semantic_ir.py` to create a semantic IR. It extracts:
 
 Run `scripts/write_docx_authoring_brief.py` and read the brief before writing LaTeX.
 
+Read `references/docx-workflow.md` and `references/nwpuers-workflow.md` before converting DOCX files.
+
 ## Authoring Rules
 
 - Map Word headings to NWPU chapter and section structure.
 - Use template-native abstract, keyword, metadata, bibliography, appendix, acknowledgement, committee, and accomplishment files.
 - Convert clear academic tables to three-line tables using `booktabs`.
-- Do not preserve Word table border grids unless explicitly required.
-- Never omit an extracted Word data table just because it has no caption.
-- When a table lacks a caption, infer a conservative provisional caption from nearby text or the table contents, render the table, and record the assumption in `conversion_report.md`.
+- Avoid preserving Word table border grids unless explicitly required.
+- Do not omit an extracted Word data table just because it lacks a caption when rows and cells are meaningful. Render it with a conservative provisional caption and record the assumption in `conversion_report.md`; use an in-place review note for damaged, empty, or layout-only tables.
 - Generate missing figure/table captions only when the role is clear, and record that in the report.
 - Treat adjacent or grid-aligned images as a possible figure group before emitting independent figures.
 - For figure groups, choose one of these policies and record the choice: shared group caption, separate captions, subfigures with labels such as `(a)`, `(b)`, `(c)`, or in-place review placeholder when the relationship is unclear.
-- Do not use `longtable` to lay out image groups. Use a figure/subfigure/minipage layout when confident, or keep an in-place figure-group placeholder.
+- Avoid using `longtable` to lay out image groups. Use a figure/subfigure/minipage layout when confident, or keep an in-place figure-group placeholder.
 - Do not invent missing data, references, formulas, committee members, student numbers, or signatures.
 - Keep uncertain formulas, rough tables, and ambiguous image groups in their source position as visible review placeholders when faithful reconstruction is unsafe.
 - For reliable formulas, ignore Word spacing, line breaks, indentation, and manual equation numbers; reconstruct the ideal LaTeX environment.
@@ -140,25 +143,26 @@ Run `scripts/write_docx_authoring_brief.py` and read the brief before writing La
 - Define repeated special math shapes such as Gaussian binomials as template-level macros, but keep compact matrix macros as fallbacks rather than the ordinary matrix path.
 - When a formula-shape issue is confirmed, search the full chapter or project for the same macro/context instead of fixing only the reported location.
 - Preserve WMF/EMF formula images by converting them to a supported fallback such as PNG/PDF when possible. If conversion fidelity is uncertain, include the fallback in place and mark it for manual review.
-- Without reliable visual or formula parsing, do not guess LaTeX for image-only formulas. Keep the formula image or a visible placeholder in the original location.
+- Without reliable visual or formula parsing, do not guess LaTeX for image-only formulas. If visual/context confidence is high, reconstruct editable LaTeX and mark it for review; otherwise keep the formula image or a visible placeholder in the original location.
 - Put generated figures under `content/figures/`.
 - Keep small and medium tables near the related text for reviewability.
 
 ## Modular Pipeline
 
-Treat conversion as independent modules with saved outputs. Each module must be independently rerunnable from its declared inputs:
+Treat conversion as independent modules with saved outputs. Use the standard NWPU module IDs and contracts in `references/modular-pipeline.md`. Each module must be independently rerunnable from its declared inputs:
 
-- source inventory writes a profile under `work/`
-- thesis type decision is recorded under `work/`
+- source inventory writes `work/document_profile.json`
+- thesis type decision writes `work/thesis_type_decision.md`
 - DOCX extraction writes `work/docx_semantic_ir.json`
 - authoring brief writes `work/docx_authoring_brief.md`
 - NWPU project creation writes the selected `project/` skeleton
+- authoring plan writes `work/authoring_plan.md`
 - LaTeX authoring writes chapter and asset files under `project/`
-- compilation writes logs and repair notes
+- compilation writes `project/compile_result.json` and logs
 - quality gate writes `project/quality_gate.md` or JSON
 - conversion reporting writes `project/conversion_report.md`
 
-When resuming, reuse existing upstream artifacts if their inputs have not changed. Do not rerun the whole pipeline when a single module can be rerun safely.
+When resuming, reuse existing upstream artifacts if their inputs have not changed. Record and check module freshness with `work/pipeline_manifest.json`. Do not rerun the whole pipeline when a single module can be rerun safely.
 
 ## Quality Modes
 
@@ -174,11 +178,12 @@ Use `scripts/quality_gate.py --fail-on-warning` only for strict delivery checks.
 
 - Read `references/nwpuers-workflow.md` first.
 - Read `references/docx-workflow.md` for DOCX extraction and authoring.
+- Read `references/ai-authoring.md` for the AI/script responsibility boundary.
 - Read `references/content-structure.md` for figures and tables.
 - Read `references/cross-references.md` for labels and references.
 - Read `references/formula-normalization.md` before reconstructing formulas from Word or PDF references.
 - Read `references/chinese-latex.md` for Chinese text.
-- Read `references/modular-pipeline.md` for module boundaries, saved outputs, and resume rules.
+- Read `references/modular-pipeline.md` for standard module IDs, saved outputs, and resume rules.
 - Read `references/troubleshooting.md` when compilation fails.
 
 ## Scripts
@@ -187,6 +192,9 @@ Use `scripts/quality_gate.py --fail-on-warning` only for strict delivery checks.
 - `scripts/detect_document.py`: quick source profile.
 - `scripts/build_docx_semantic_ir.py`: DOCX semantic IR and defect report.
 - `scripts/write_docx_authoring_brief.py`: authoring brief from DOCX IR.
+- `scripts/write_authoring_plan.py`: resumable authoring plan from saved artifacts.
+- `scripts/run_module.py`: run one pipeline module and record successful inputs/outputs.
+- `scripts/pipeline_manifest.py`: record and check module input/output freshness for resumable runs.
 - `scripts/compile_latex.py`: local compile helper.
 - `scripts/quality_gate.py`: delivery checks, including optional DOCX IR table coverage.
 - `scripts/write_conversion_report.py`: conversion report writer.

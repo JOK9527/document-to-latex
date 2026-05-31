@@ -1,10 +1,10 @@
 # DOCX Workflow
 
-Use this workflow for academic papers, theses, reports, and formatting drafts.
+Use this workflow for NWPU academic theses and Word-based formatting drafts.
 
 ## Goal
 
-Convert the editable Word source into a maintainable LaTeX project. Do not simply dump DOCX XML or Pandoc output into `.tex`.
+Convert the editable Word source into a maintainable `nwputhesis` project. Do not simply dump DOCX XML or Pandoc output into `.tex`.
 
 ## Preflight
 
@@ -18,23 +18,74 @@ After this, proceed and record assumptions. Avoid stopping repeatedly for issues
 
 ## Extraction
 
-Run:
+Run source detection first and save the output:
 
 ```bash
-python scripts/build_docx_semantic_ir.py source/original.docx \
+python scripts/run_module.py \
+  --module source_inventory \
+  --input source/original.docx \
+  --output work/document_profile.json \
+  -- python scripts/detect_document.py source/original.docx --output work/document_profile.json
+```
+
+Record thesis type as a saved module output:
+
+```text
+work/thesis_type_decision.md
+```
+
+Run DOCX semantic extraction:
+
+```bash
+python scripts/run_module.py \
+  --module docx_semantic_extraction \
+  --input source/original.docx \
   --output work/docx_semantic_ir.json \
-  --summary work/docx_semantic_ir_summary.md \
-  --asset-dir work/docx_assets
+  --output work/docx_semantic_ir_summary.md \
+  --output work/docx_assets \
+  -- python scripts/build_docx_semantic_ir.py source/original.docx --output work/docx_semantic_ir.json --summary work/docx_semantic_ir_summary.md --asset-dir work/docx_assets
 ```
 
 Then run:
 
 ```bash
-python scripts/write_docx_authoring_brief.py work/docx_semantic_ir.json \
-  --output work/docx_authoring_brief.md
+python scripts/run_module.py \
+  --module authoring_brief \
+  --input work/docx_semantic_ir.json \
+  --output work/docx_authoring_brief.md \
+  -- python scripts/write_docx_authoring_brief.py work/docx_semantic_ir.json --output work/docx_authoring_brief.md
 ```
 
-Read both files before writing LaTeX.
+Create the NWPU project skeleton:
+
+```bash
+python scripts/run_module.py \
+  --module nwpu_project_creation \
+  --input work/thesis_type_decision.md \
+  --input assets/templates/nwputhesis \
+  --output project \
+  -- python scripts/create_nwputhesis_project.py project --type bachelor --overwrite
+```
+
+Use `--type master`, `--type phd`, or `--type master --professional` according to `work/thesis_type_decision.md`.
+
+Then create the authoring plan:
+
+```bash
+python scripts/run_module.py \
+  --module authoring_plan \
+  --input work/docx_authoring_brief.md \
+  --input work/docx_semantic_ir.json \
+  --input work/thesis_type_decision.md \
+  --input project \
+  --output work/authoring_plan.md \
+  -- python scripts/write_authoring_plan.py \
+  --brief work/docx_authoring_brief.md \
+  --ir work/docx_semantic_ir.json \
+  --output work/authoring_plan.md
+```
+
+Read the IR summary, authoring brief, authoring plan, and NWPU workflow before writing LaTeX.
 
 Treat these files as module boundaries. If the DOCX has not changed, reuse the semantic IR. If the IR has not changed, reuse the authoring brief. Resume downstream work from these saved artifacts instead of restarting the whole workflow.
 
@@ -50,22 +101,24 @@ Treat these files as module boundaries. If the DOCX has not changed, reuse the s
 - formulas represented as OMML, images, WMF/EMF fallbacks, OLE objects, or plain text
 - formulas with manual numbering, unreliable line breaks, stretched delimiters, or Word-only visual spacing
 - citation markers and bibliography candidates
+- NWPU metadata cues such as title, student number, school, major, supervisor, committee, and degree type
 
 ## Authoring Rules
 
 - Use source heading hierarchy when reliable.
 - Infer headings only when style, numbering, and context agree.
+- Map reliable headings into the selected `nwputhesis` undergraduate or graduate content structure.
 - Keep small and medium tables near their discussion.
 - Rebuild tables as reviewable LaTeX when the structure is clear.
 - For academic documents, convert clear data tables to three-line tables by default. Use template-native table commands or `booktabs` (`\toprule`, `\midrule`, `\bottomrule`) instead of preserving Word borders.
 - Do not emit Word-style full grid tables with repeated `\hline` unless the template or user explicitly requires bordered tables.
 - If the DOCX IR contains table rows and cells, render the table in LaTeX even when the original DOCX has no caption.
-- Missing captions should become conservative provisional captions plus `conversion_report.md` assumptions, not `% REVIEW` placeholders that omit the table.
-- Mark unclear tables instead of pretending they are clean.
+- Missing captions should become conservative provisional captions plus `conversion_report.md` assumptions, not `% REVIEW` placeholders that omit meaningful data tables.
+- Mark unclear, damaged, empty, or layout-only tables instead of pretending they are clean.
 - Preserve figure order and captions when reliable.
 - Detect possible figure groups before emitting standalone figures. Choose shared caption, separate captions, subfigure labels, or an in-place review placeholder when the relationship is unclear.
 - Generate captions only when the figure role is obvious, and record this.
-- Do not use `longtable` as an image-layout workaround. Multi-image content should remain figure semantics.
+- Avoid using `longtable` as an image-layout workaround. Multi-image content should remain figure semantics unless the source is genuinely a data table.
 - Reconstruct formulas as editable LaTeX only when confident.
 - Treat Word/PDF formula layout as a draft signal, not a formatting authority.
 - Preserve math content exactly, then rebuild equation environments, labels, references, and visual layout using `references/formula-normalization.md`.
@@ -103,4 +156,34 @@ Common defects:
 
 Use the `nwputhesis` structure created by `scripts/create_nwputhesis_project.py`. Keep generated content out of `source/`, keep style out of chapter files, and keep review comments close to uncertain conversions.
 
-Save module outputs under `work/` and final delivery outputs under `project/` so extraction, planning, project creation, authoring, compilation, quality checks, and reporting can be rerun independently.
+Save module outputs under `work/` and final delivery outputs under `project/` so extraction, planning, project creation, authoring, compilation, quality checks, and reporting can be rerun independently. Record module freshness in `work/pipeline_manifest.json`.
+
+Recommended downstream commands:
+
+```bash
+python scripts/run_module.py \
+  --module compilation \
+  --input project \
+  --output project/compile_result.json \
+  -- python scripts/compile_latex.py project --output project/compile_result.json
+
+python scripts/run_module.py \
+  --module quality_gate \
+  --input project \
+  --input work/docx_semantic_ir.json \
+  --output project/quality_gate.json \
+  -- python scripts/quality_gate.py project --ir work/docx_semantic_ir.json --output project/quality_gate.json
+
+python scripts/run_module.py \
+  --module conversion_report \
+  --input work/document_profile.json \
+  --input work/thesis_type_decision.md \
+  --input project/compile_result.json \
+  --input project/quality_gate.json \
+  --output project/conversion_report.md \
+  -- python scripts/write_conversion_report.py \
+  --metadata work/document_profile.json \
+  --compile-result project/compile_result.json \
+  --quality-gate project/quality_gate.json \
+  --output project/conversion_report.md
+```

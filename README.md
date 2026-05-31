@@ -28,18 +28,37 @@ For graduate theses, default to academic degree. Ask about professional degree o
 ## Workflow
 
 1. Inspect `source/` for the primary `.docx`.
-2. Ask the thesis type question if needed.
-3. Build DOCX semantic IR.
-4. Generate the DOCX authoring brief.
-5. Create the project with `scripts/create_nwputhesis_project.py`.
-6. Fill the appropriate `content/thesis/undergraduate/` or `content/thesis/graduate/` files.
-7. Use three-line tables by default; extracted DOCX tables must be rendered even when the original table caption is missing.
-8. Preserve uncertain figures, tables, and formulas in place with visible review placeholders instead of silently dropping or moving them.
-9. Compile when possible.
-10. Run the quality gate, preferably with the DOCX semantic IR for table coverage checks.
-11. Write a conversion report.
+2. Ask the thesis type question if needed and record the decision under `work/`.
+3. Build and save `work/document_profile.json`.
+4. Build and save the DOCX semantic IR, summary, and extracted assets.
+5. Generate and save `work/docx_authoring_brief.md`.
+6. Create the NWPU project skeleton with `scripts/create_nwputhesis_project.py`.
+7. Write `work/authoring_plan.md` as the handoff into LaTeX authoring.
+8. Fill the appropriate `content/thesis/undergraduate/` or `content/thesis/graduate/` files.
+9. Use three-line tables by default; extracted meaningful DOCX data tables must be rendered even when the original table caption is missing.
+10. Preserve uncertain figures, tables, and formulas in place with visible review placeholders instead of silently dropping or moving them.
+11. Compile when possible and save the compile result.
+12. Run the quality gate, preferably with the DOCX semantic IR for table coverage checks.
+13. Write a conversion report with source defects, assumptions, quality gate results, and manual review items.
 
 Each stage should save its output under `work/` or `project/` so extraction, planning, project creation, authoring, compilation, quality checks, and reporting can be rerun independently.
+
+## Design Position
+
+This branch behaves like an NWPU thesis editing assistant, not a format dumper. It should:
+
+- understand the Word draft before writing LaTeX
+- normalize structure without inventing missing facts
+- separate content from style
+- use the embedded `nwputhesis` structure by default
+- rebuild academic tables as semantic three-line LaTeX tables instead of copying Word borders
+- render meaningful extracted DOCX data tables even when the source forgot the table caption
+- run conversion as loosely coupled modules with saved intermediate artifacts
+- resume from any module when its upstream artifacts already exist and remain valid
+- record module freshness in `work/pipeline_manifest.json`
+- mark uncertain tables, formulas, captions, and references for review
+- keep uncertain figures, tables, and formulas near their source position with visible review placeholders
+- avoid repeated mid-process questions after thesis type is known
 
 ## V1.3 Focus
 
@@ -57,6 +76,13 @@ Each stage should save its output under `work/` or `project/` so extraction, pla
 - Corrects the earlier bias toward using compact matrix macros for ordinary matrices.
 - Adds a template-layer matrix baseline hook for `nwputhesis` so body line spacing does not stretch matrix internals.
 - Adds guidance and quality checks for inline `\gbinom` calculations that need `\displaystyle`.
+
+## V1.3.2 Focus
+
+- Adds `work/pipeline_manifest.json` as the standard module freshness record.
+- Adds `work/authoring_plan.md` as the saved handoff into LaTeX authoring.
+- Standardizes module output paths under `work/` and `project/`.
+- Lets conversion reports include quality gate results.
 
 ## V1.2 Focus
 
@@ -100,6 +126,12 @@ The upstream template is GPLv3; see `assets/templates/nwputhesis/UPSTREAM_LICENS
 - `scripts/build_docx_semantic_ir.py`: DOCX semantic IR and defect report.
 - `scripts/write_docx_authoring_brief.py`: AI authoring brief from DOCX IR.
 - `scripts/create_nwputhesis_project.py`: create a clean NWPU thesis project.
+- `scripts/write_authoring_plan.py`: resumable authoring plan from saved artifacts.
+- `scripts/pipeline_manifest.py`: record and check module input/output freshness.
 - `scripts/compile_latex.py`: local LaTeX compile helper.
 - `scripts/quality_gate.py`: delivery checks.
 - `scripts/write_conversion_report.py`: conversion report writer.
+
+## Version
+
+Current development target: `v1.3.2`.
