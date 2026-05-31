@@ -50,8 +50,16 @@ This skill behaves like an academic editing assistant, not a format dumper. It s
 - Rebuild equation environments, numbering, labels, and references under LaTeX rules.
 - Prefer semantic `\label` plus `\eqref` over manual equation numbers copied from Word.
 - Keep ordinary examples and proof steps unnumbered while numbering core formulas and later-referenced formulas.
-- Use shared formula macros for repeated math shapes so visual form stays consistent across chapters.
+- Prefer standard matrix environments for ordinary matrices; fix template line-height pollution when compiled matrices stretch.
+- Use `\displaystyle` for short inline Gaussian-binomial calculations that must remain attached to list or example text.
+- Keep compact matrix macros as fallbacks, while using shared semantic macros for genuinely special repeated math shapes.
 - Make the workflow more modular: source profiling, DOCX extraction, authoring brief, template analysis, LaTeX authoring, compilation, quality gate, and reporting each produce saved outputs and can be rerun independently.
+
+## V1.3.1 Fix
+
+- Corrects the earlier bias toward using compact matrix macros for ordinary matrices.
+- Adds guidance to diagnose template line-height pollution before rewriting formula bodies.
+- Adds guidance and quality checks for inline `\gbinom` calculations that need `\displaystyle`.
 
 ## V1.2 Focus
 

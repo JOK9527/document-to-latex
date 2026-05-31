@@ -98,7 +98,10 @@ Handle these defects as follows:
 - Number only core definition/theorem/lemma/proposition formulas or formulas explicitly referenced later.
 - Use `equation + label` for numbered formulas, `equation + aligned` for one logical multi-line numbered formula, and `\[ aligned \]` for unnumbered derivations.
 - Replace manual equation references with `\eqref` when the target is clear, and record ambiguous references in the report.
-- Define repeated math shapes such as compact matrices or Gaussian binomials as template-level macros instead of hand-tuning each occurrence.
+- Use standard matrix environments for ordinary matrices. If compiled matrices are stretched while editor previews look normal, diagnose template `\baselineskip`, `\fontsize`, `\arraystretch`, and matrix hooks before changing chapter formulas.
+- Keep short inline Gaussian-binomial calculations in place with `\displaystyle`; use local spacing for consecutive tall inline formulas instead of changing global line spacing.
+- Define repeated special math shapes such as Gaussian binomials as template-level macros, but keep compact matrix macros as fallbacks rather than the ordinary matrix path.
+- When a formula-shape issue is confirmed, search the full chapter or project for the same macro/context instead of fixing only the reported location.
 - Normalize table structure only when the result is faithful and reviewable.
 - Convert clear academic tables to three-line tables using template-native table commands or `booktabs` (`\toprule`, `\midrule`, `\bottomrule`). Avoid `\hline` grids copied from Word styling.
 - Never omit an extracted Word data table just because it lacks a caption. Render it with a conservative provisional caption and record the assumption in `conversion_report.md`.

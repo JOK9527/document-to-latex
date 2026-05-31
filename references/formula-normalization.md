@@ -11,8 +11,8 @@ Word and PDF output are content references, not trusted formatting sources. Pres
 1. Preserve mathematical content exactly.
 2. Preserve cross-reference meaning.
 3. Rebuild valid LaTeX equation structure.
-4. Optimize the ideal academic visual form.
-5. Ignore source spacing, line breaks, and manual numbering when they conflict with the rules above.
+4. Diagnose whether a visual issue comes from source content, LaTeX math style, or template-level formatting.
+5. Optimize the ideal academic visual form without copying source spacing, line breaks, or manual numbering.
 
 ## Source Policy
 
@@ -122,23 +122,59 @@ For Chinese prose, use the template's language style consistently, for example:
 
 Replace manual text such as `(2-1)`, `(3.2)`, or `formula (2-1)` when the target equation can be identified.
 
+## Matrix Shape Diagnosis
+
+Use standard matrix environments for ordinary matrices:
+
+```latex
+\begin{pmatrix}
+1 & 0 \\
+0 & 1
+\end{pmatrix}
+```
+
+Do not rewrite ordinary matrices to a compact macro as the first response to bad PDF output. If an editor preview looks normal but the compiled PDF makes matrices tall and narrow, inspect the template first:
+
+- global `\baselineskip`
+- `\fontsize{12pt}{23.4pt}`-style body font settings
+- global `\arraystretch`
+- matrix, `pmatrix`, `bmatrix`, `Bmatrix`, `vmatrix`, and `Vmatrix` environment hooks
+
+When a template's body line height pollutes math matrix internals, fix it in the template layer by locally restoring a standard math matrix baseline inside matrix environments. Keep the thesis body line spacing unchanged.
+
+Use compact matrix macros only as compatibility fallbacks for exceptional notation. They should not be the default representation for normal matrices.
+
+## Gaussian Binomials and Tall Inline Math
+
+Keep a semantic Gaussian binomial command:
+
+```latex
+\providecommand{\gbinom}[3]{\genfrac{[}{]}{0pt}{}{#1}{#2}_{#3}}
+```
+
+When a short Gaussian binomial calculation appears inline after prose or manual list text, keep it in place and use `\displaystyle`:
+
+```latex
+1. \(\displaystyle \gbinom{0}{0}{2}=1\).
+```
+
+Do not convert short inline list calculations to centered display equations unless the formula is genuinely long. Display math can detach the formula from the local list or example structure.
+
+If several `\displaystyle \gbinom` lines appear consecutively and become visually tight, add local spacing only for that calculation block, such as a small `\vspace{0.3em}` or an `enumerate` with a local `\itemsep`. Do not change the global body line spacing to fix a local tall-inline-formula problem.
+
+When fixing a Gaussian binomial display issue, search the whole chapter or project for similar contexts, not only the reported lemma or example.
+
 ## Repeated Math Shapes
 
 Define repeated math forms once in the preamble or template layer, not inside each chapter.
 
-Use a compact matrix macro when small matrices look stretched with ordinary `pmatrix`:
+Keep compact matrix macros as fallbacks, not as the preferred ordinary matrix form:
 
 ```latex
 \providecommand{\rankmat}[1]{%
   {\renewcommand{\arraystretch}{0.92}%
   \left(\begin{matrix}#1\end{matrix}\right)}%
 }
-```
-
-Use a Gaussian binomial macro instead of manually building brackets with `array`:
-
-```latex
-\providecommand{\gbinom}[3]{\genfrac{[}{]}{0pt}{}{#1}{#2}_{#3}}
 ```
 
 Prefer semantic operators:
@@ -157,6 +193,7 @@ Prefer semantic operators:
 - Prose references use `\eqref`.
 - No manual equation numbers remain when the target is known.
 - Ordinary derivations do not use numbered `align`.
-- Matrices and repeated symbols use template macros when helpful.
+- Ordinary matrices use standard matrix environments unless a documented template fallback is needed.
+- Tall inline Gaussian binomial calculations use `\displaystyle` when they must stay inline.
 - Long formulas do not exceed the page margin.
 - Compiled output has centered displays, stable numbering, and no `??` references.

@@ -1,5 +1,23 @@
 # Worklog
 
+## v1.3.1 - 2026-06-01
+
+### Direction
+
+Correct the v1.3 matrix-shape assumption and distinguish template line-height pollution from formula-source problems.
+
+### Changed
+
+- Ordinary matrices should use standard `matrix`, `pmatrix`, and `bmatrix` environments first.
+- Compact matrix macros remain fallbacks, not the default conversion path.
+- Gaussian-binomial calculations that must stay inline should use `\displaystyle`; local spacing handles dense consecutive tall inline formulas.
+- Formula fixes should search the full chapter or project for the same macro/context, not only the reported paragraph.
+
+### Guardrails
+
+- If editor preview and compiled PDF disagree, inspect the template before rewriting formula bodies.
+- Do not convert short inline list calculations to display math unless the formula is genuinely long.
+
 ## v1.3 - 2026-06-01
 
 ### Direction
