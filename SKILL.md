@@ -46,16 +46,17 @@ Do not ask a long intake form. Record assumptions in `conversion_report.md`.
 
 1. Inspect `source/` for DOC/DOCX files, templates, format guides, and optional PDF references.
 2. Complete the mandatory preflight gate.
-3. Run `scripts/detect_document.py` on the primary Word source and save the profile under `work/`.
+3. Run `scripts/detect_document.py` on the primary Word source and save `work/document_profile.json`.
 4. For DOCX, run `scripts/build_docx_semantic_ir.py` and save the IR, summary, and extracted assets.
 5. Run `scripts/write_docx_authoring_brief.py`, save `work/docx_authoring_brief.md`, and read it before writing LaTeX.
 6. Analyze and preprocess any user-provided LaTeX template, saving reusable analysis under `work/`.
-7. If no template is provided, choose a default skeleton from `assets/templates/`.
-8. Write LaTeX as an editor: clean structure, fix obvious formatting noise, preserve meaning, rebuild formula formatting, and mark uncertain conversions.
-9. Keep figures, small/medium tables, formulas, and local review notes near the relevant text.
-10. Compile if possible.
-11. Run `scripts/quality_gate.py`.
-12. Write `conversion_report.md` with source defects, assumptions, and manual review items.
+7. Write `work/authoring_plan.md` from the saved IR, brief, template profile, and requirements.
+8. If no template is provided, choose a default skeleton from `assets/templates/`.
+9. Write LaTeX as an editor: clean structure, fix obvious formatting noise, preserve meaning, rebuild formula formatting, and mark uncertain conversions.
+10. Keep figures, small/medium tables, formulas, and local review notes near the relevant text.
+11. Compile if possible and save `project/compile_result.json`.
+12. Run `scripts/quality_gate.py` and save `project/quality_gate.json` or Markdown.
+13. Write `conversion_report.md` with source defects, assumptions, quality gate results, and manual review items.
 
 ## Source Priority
 
@@ -155,12 +156,13 @@ Treat conversion as independent modules with saved outputs. Each module must be 
 - DOCX extraction writes `work/docx_semantic_ir.json`
 - authoring brief writes `work/docx_authoring_brief.md`
 - template analysis writes reusable analysis under `work/`
+- authoring plan writes `work/authoring_plan.md`
 - LaTeX authoring writes chapter and asset files under `project/`
 - compilation writes logs and repair notes
 - quality gate writes `project/quality_gate.md` or JSON
 - conversion reporting writes `project/conversion_report.md`
 
-When resuming, reuse existing upstream artifacts if their inputs have not changed. Do not rerun the whole pipeline when a single module can be rerun safely.
+When resuming, reuse existing upstream artifacts if their inputs have not changed. Record and check module freshness with `work/pipeline_manifest.json`. Do not rerun the whole pipeline when a single module can be rerun safely.
 
 ## Quality Modes
 
@@ -196,6 +198,8 @@ Use `scripts/quality_gate.py --fail-on-warning` only for strict delivery checks.
 - `scripts/write_docx_authoring_brief.py`: authoring brief from DOCX IR.
 - `scripts/analyze_template.py`: LaTeX template analysis.
 - `scripts/extract_format_requirements.py`: formatting requirement extraction.
+- `scripts/write_authoring_plan.py`: resumable authoring plan from saved artifacts.
+- `scripts/pipeline_manifest.py`: record and check module input/output freshness for resumable runs.
 - `scripts/compile_latex.py`: local compile helper.
 - `scripts/quality_gate.py`: delivery checks for structure, mojibake, missing review artifacts, formula normalization, table style, and optional DOCX IR table coverage.
 - `scripts/write_conversion_report.py`: conversion report writer.

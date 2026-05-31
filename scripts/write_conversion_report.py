@@ -30,6 +30,23 @@ def load_json(path: str | None) -> dict[str, Any]:
         return {"warning": f"Could not parse JSON from {file_path}: {exc}"}
 
 
+def load_quality_gate(path: str | None) -> dict[str, Any]:
+    if not path:
+        return {}
+    file_path = Path(path)
+    if not file_path.exists():
+        return {"warning": f"File not found: {file_path}"}
+    raw = file_path.read_text(encoding="utf-8", errors="ignore").strip()
+    if not raw:
+        return {}
+    if file_path.suffix.lower() == ".json":
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError as exc:
+            return {"warning": f"Could not parse JSON from {file_path}: {exc}"}
+    return {"markdown_path": str(file_path), "markdown_excerpt": raw[:4000]}
+
+
 def bullet_lines(items: list[str]) -> list[str]:
     return [f"- {item}" for item in items] if items else ["- None recorded"]
 
@@ -57,6 +74,7 @@ def write_report(args: argparse.Namespace) -> str:
     compile_result = load_json(args.compile_result)
     template_profile = load_json(args.template_profile)
     format_requirements = load_json(args.format_requirements)
+    quality_gate = load_quality_gate(args.quality_gate)
     warnings = parse_list(args.warnings)
     sources = parse_list(args.sources)
 
@@ -104,6 +122,13 @@ def write_report(args: argparse.Namespace) -> str:
             "",
             *bullet_lines(warnings),
             "",
+            "## Quality Gate",
+            "",
+            f"- Findings: {quality_gate.get('counts', {}).get('findings', 'Not recorded')}",
+            f"- Errors: {quality_gate.get('counts', {}).get('errors', 'Not recorded')}",
+            f"- Warnings: {quality_gate.get('counts', {}).get('warnings', 'Not recorded')}",
+            f"- Report: {quality_gate.get('markdown_path', args.quality_gate or 'Not recorded')}",
+            "",
             "## Build",
             "",
             f"- Command: {compile_result.get('command', 'Not recorded')}",
@@ -120,6 +145,7 @@ def main() -> int:
     parser.add_argument("--compile-result", help="JSON result from compile_latex.py")
     parser.add_argument("--template-profile", help="JSON result from analyze_template.py")
     parser.add_argument("--format-requirements", help="JSON result from extract_format_requirements.py")
+    parser.add_argument("--quality-gate", help="JSON or Markdown result from quality_gate.py")
     parser.add_argument("--template", help="Template name or path used")
     parser.add_argument("--requirements-summary", help="Short text summary of applied requirements")
     parser.add_argument("--sources", help="JSON list of original source material paths or descriptions")

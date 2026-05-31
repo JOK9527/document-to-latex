@@ -18,6 +18,19 @@ After this, proceed and record assumptions. Avoid stopping repeatedly for issues
 
 ## Extraction
 
+Run source detection first and save the output:
+
+```bash
+python scripts/detect_document.py source/original.docx \
+  --output work/document_profile.json
+
+python scripts/pipeline_manifest.py record \
+  --module source_inventory \
+  --input source/original.docx \
+  --output work/document_profile.json \
+  --command "python scripts/detect_document.py source/original.docx --output work/document_profile.json"
+```
+
 Run:
 
 ```bash
@@ -25,6 +38,14 @@ python scripts/build_docx_semantic_ir.py source/original.docx \
   --output work/docx_semantic_ir.json \
   --summary work/docx_semantic_ir_summary.md \
   --asset-dir work/docx_assets
+
+python scripts/pipeline_manifest.py record \
+  --module docx_semantic_extraction \
+  --input source/original.docx \
+  --output work/docx_semantic_ir.json \
+  --output work/docx_semantic_ir_summary.md \
+  --output work/docx_assets \
+  --command "python scripts/build_docx_semantic_ir.py source/original.docx --output work/docx_semantic_ir.json --summary work/docx_semantic_ir_summary.md --asset-dir work/docx_assets"
 ```
 
 Then run:
@@ -32,9 +53,36 @@ Then run:
 ```bash
 python scripts/write_docx_authoring_brief.py work/docx_semantic_ir.json \
   --output work/docx_authoring_brief.md
+
+python scripts/pipeline_manifest.py record \
+  --module authoring_brief \
+  --input work/docx_semantic_ir.json \
+  --output work/docx_authoring_brief.md \
+  --command "python scripts/write_docx_authoring_brief.py work/docx_semantic_ir.json --output work/docx_authoring_brief.md"
 ```
 
-Read both files before writing LaTeX.
+If a template or format guide is present, save reusable analysis:
+
+```bash
+python scripts/analyze_template.py source/template \
+  --output work/template_analysis.json
+
+python scripts/extract_format_requirements.py source/format-guide.txt \
+  --output work/template_requirements.json
+```
+
+Then create the authoring plan:
+
+```bash
+python scripts/write_authoring_plan.py \
+  --brief work/docx_authoring_brief.md \
+  --ir work/docx_semantic_ir.json \
+  --template-profile work/template_analysis.json \
+  --format-requirements work/template_requirements.json \
+  --output work/authoring_plan.md
+```
+
+Read the IR summary, authoring brief, and authoring plan before writing LaTeX.
 
 Treat these files as module boundaries. If the DOCX has not changed, reuse the semantic IR. If the IR has not changed, reuse the authoring brief. Resume downstream work from these saved artifacts instead of restarting the whole workflow.
 
@@ -103,4 +151,23 @@ Common defects:
 
 Use the template structure or one of the default skeletons. Keep generated content out of `source/`, keep style out of chapter files, and keep review comments close to uncertain conversions.
 
-Save module outputs under `work/` and final delivery outputs under `project/` so extraction, planning, authoring, compilation, quality checks, and reporting can be rerun independently.
+Save module outputs under `work/` and final delivery outputs under `project/` so extraction, planning, authoring, compilation, quality checks, and reporting can be rerun independently. Record module freshness in `work/pipeline_manifest.json`.
+
+Recommended downstream commands:
+
+```bash
+python scripts/compile_latex.py project \
+  --output project/compile_result.json
+
+python scripts/quality_gate.py project \
+  --ir work/docx_semantic_ir.json \
+  --output project/quality_gate.json
+
+python scripts/write_conversion_report.py \
+  --metadata work/document_profile.json \
+  --compile-result project/compile_result.json \
+  --template-profile work/template_analysis.json \
+  --format-requirements work/template_requirements.json \
+  --quality-gate project/quality_gate.json \
+  --output project/conversion_report.md
+```

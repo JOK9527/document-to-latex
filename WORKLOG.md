@@ -1,5 +1,23 @@
 # Worklog
 
+## v1.3.2 - 2026-06-01
+
+### Direction
+
+Move the modular pipeline from documented intent toward executable resumability.
+
+### Added
+
+- `scripts/pipeline_manifest.py` records module inputs, outputs, hashes, commands, and freshness checks in `work/pipeline_manifest.json`.
+- `scripts/write_authoring_plan.py` creates `work/authoring_plan.md` as the saved handoff into LaTeX authoring.
+- Standard workflow commands now use stable `work/` and `project/` output paths.
+- Conversion reports can consume quality gate JSON or Markdown output.
+
+### Improved
+
+- Quality gate execution now uses a check registry so individual checks are easier to split or reorder.
+- Modular pipeline guidance now includes manifest recording and checking commands.
+
 ## v1.3.1 - 2026-06-01
 
 ### Direction

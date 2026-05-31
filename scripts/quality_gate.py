@@ -469,14 +469,9 @@ def check_table_style(project: Path) -> list[dict[str, Any]]:
 
 def run_quality_gate(project: Path, ir: dict[str, Any] | None = None) -> dict[str, Any]:
     findings = []
-    findings.extend(check_structure(project))
-    findings.extend(check_mojibake(project))
-    findings.extend(check_images(project))
-    findings.extend(check_figure_table_semantics(project))
-    findings.extend(check_formula_normalization(project))
+    for check in PROJECT_CHECKS:
+        findings.extend(check(project))
     findings.extend(check_table_coverage(project, ir))
-    findings.extend(check_table_placeholders(project))
-    findings.extend(check_table_style(project))
     return {
         "schema": "document-to-latex.quality-gate.v1",
         "project": str(project),
@@ -487,6 +482,17 @@ def run_quality_gate(project: Path, ir: dict[str, Any] | None = None) -> dict[st
         },
         "findings": findings,
     }
+
+
+PROJECT_CHECKS = (
+    check_structure,
+    check_mojibake,
+    check_images,
+    check_figure_table_semantics,
+    check_formula_normalization,
+    check_table_placeholders,
+    check_table_style,
+)
 
 
 def render_markdown(result: dict[str, Any]) -> str:

@@ -22,11 +22,12 @@ The workflow should be used for explicit slash-command requests and for plain-la
 3. Build and save a DOCX semantic IR with `build_docx_semantic_ir.py`.
 4. Generate and save a DOCX authoring brief.
 5. Analyze and preprocess any user template as a reusable module output.
-6. Rewrite the content into the target LaTeX structure.
-7. Preserve uncertain figures, tables, and formulas in place with visible review placeholders instead of silently dropping or moving them.
-8. Compile when possible.
-9. Run the quality gate and save the report.
-10. Report source defects, assumptions, and manual review items.
+6. Write `work/authoring_plan.md` as the handoff into LaTeX authoring.
+7. Rewrite the content into the target LaTeX structure.
+8. Preserve uncertain figures, tables, and formulas in place with visible review placeholders instead of silently dropping or moving them.
+9. Compile when possible.
+10. Run the quality gate and save the report.
+11. Report source defects, assumptions, quality gate results, and manual review items.
 
 ## Design Position
 
@@ -40,6 +41,7 @@ This skill behaves like an academic editing assistant, not a format dumper. It s
 - use template-native commands when adapting a template
 - run conversion as loosely coupled modules with saved intermediate artifacts
 - resume from any module when its upstream artifacts already exist and remain valid
+- record module freshness in `work/pipeline_manifest.json`
 - mark uncertain tables, formulas, captions, and references for review
 - keep uncertain figures, tables, and formulas near their source position with visible review placeholders
 - avoid repeated mid-process questions by doing a short preflight first
@@ -61,6 +63,13 @@ This skill behaves like an academic editing assistant, not a format dumper. It s
 - Adds guidance to diagnose template line-height pollution before rewriting formula bodies.
 - Adds guidance and quality checks for inline `\gbinom` calculations that need `\displaystyle`.
 
+## V1.3.2 Focus
+
+- Adds `work/pipeline_manifest.json` as the standard module freshness record.
+- Adds `work/authoring_plan.md` as the saved handoff into LaTeX authoring.
+- Standardizes module output paths under `work/` and `project/`.
+- Lets conversion reports include quality gate results.
+
 ## V1.2 Focus
 
 - Detect adjacent or grid-aligned images as possible figure groups before emitting separate figures.
@@ -75,6 +84,8 @@ This skill behaves like an academic editing assistant, not a format dumper. It s
 - `scripts/detect_document.py`: source profile.
 - `scripts/build_docx_semantic_ir.py`: DOCX semantic IR and defect report.
 - `scripts/write_docx_authoring_brief.py`: AI authoring brief from DOCX IR.
+- `scripts/write_authoring_plan.py`: resumable authoring plan from saved artifacts.
+- `scripts/pipeline_manifest.py`: record and check module input/output freshness.
 - `scripts/analyze_template.py`: LaTeX template analysis.
 - `scripts/extract_format_requirements.py`: formatting requirement extraction.
 - `scripts/compile_latex.py`: local LaTeX compile helper.
@@ -83,6 +94,6 @@ This skill behaves like an academic editing assistant, not a format dumper. It s
 
 ## Version
 
-Current development target: `v1.3`.
+Current development target: `v1.3.2`.
 
 PDF-only conversion is intentionally deferred until a multimodal or MinerU-level layout pipeline is available.
