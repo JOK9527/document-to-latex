@@ -48,6 +48,7 @@ Each stage should save its output under `work/` or `project/` so extraction, pla
 This branch behaves like an NWPU thesis editing assistant, not a format dumper. It should:
 
 - understand the Word draft before writing LaTeX
+- use scripts as evidence and guardrails, not as substitutes for AI semantic judgment
 - normalize structure without inventing missing facts
 - separate content from style
 - use the embedded `nwputhesis` structure by default
@@ -127,6 +128,7 @@ The upstream template is GPLv3; see `assets/templates/nwputhesis/UPSTREAM_LICENS
 - `scripts/write_docx_authoring_brief.py`: AI authoring brief from DOCX IR.
 - `scripts/create_nwputhesis_project.py`: create a clean NWPU thesis project.
 - `scripts/write_authoring_plan.py`: resumable authoring plan from saved artifacts.
+- `scripts/run_module.py`: run one pipeline module and record successful inputs/outputs.
 - `scripts/pipeline_manifest.py`: record and check module input/output freshness.
 - `scripts/compile_latex.py`: local LaTeX compile helper.
 - `scripts/quality_gate.py`: delivery checks.

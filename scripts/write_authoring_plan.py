@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write a resumable LaTeX authoring plan from saved pipeline artifacts."""
+"""Write a resumable LaTeX authoring index from saved pipeline artifacts."""
 
 from __future__ import annotations
 
@@ -53,7 +53,7 @@ def write_plan(args: argparse.Namespace) -> str:
     lines = [
         "# LaTeX Authoring Plan",
         "",
-        "This plan is a resumable handoff artifact between extraction/template analysis and final LaTeX authoring.",
+        "This plan is a resumable execution index between extraction/template analysis and final LaTeX authoring. Use the authoring brief for detailed source guidance; use this file to decide what to do next and where to resume.",
         "",
         "## Inputs",
         "",
@@ -80,14 +80,20 @@ def write_plan(args: argparse.Namespace) -> str:
         "",
         "## Authoring Modules",
         "",
-        "1. Metadata and front matter",
-        "2. Section/chapter structure",
-        "3. Body prose and formulas",
-        "4. Tables and captions",
-        "5. Figures and figure groups",
-        "6. Bibliography and citations",
-        "7. Appendices and back matter",
-        "8. Local review notes and conversion report items",
+        "- [ ] Metadata and front matter",
+        "- [ ] Section/chapter structure",
+        "- [ ] Body prose and formulas",
+        "- [ ] Tables and captions",
+        "- [ ] Figures and figure groups",
+        "- [ ] Bibliography and citations",
+        "- [ ] Appendices and back matter",
+        "- [ ] Local review notes and conversion report items",
+        "",
+        "## AI Judgment Points",
+        "",
+        "- Treat script outputs as evidence; override them when document context proves them wrong and record why.",
+        "- Decide formula numbering, caption reconstruction, table semantics, and image grouping from local context.",
+        "- Prefer review notes over silent guesses when confidence is low.",
         "",
         "## Formula Policy",
         "",
@@ -105,7 +111,7 @@ def write_plan(args: argparse.Namespace) -> str:
 
     if format_requirements:
         lines.extend(["", "## Format Requirement Snapshot", "", "```json", json.dumps(format_requirements, ensure_ascii=False, indent=2), "```"])
-    if brief:
+    if args.include_brief_excerpt and brief:
         lines.extend(["", "## Brief Excerpt", "", brief[:4000]])
     return "\n".join(lines) + "\n"
 
@@ -115,8 +121,9 @@ def main() -> int:
     parser.add_argument("--brief", required=True, help="work/docx_authoring_brief.md")
     parser.add_argument("--ir", help="work/docx_semantic_ir.json")
     parser.add_argument("--template-profile", help="work/template_analysis.json")
-    parser.add_argument("--format-requirements", help="work/template_requirements.json")
+    parser.add_argument("--format-requirements", help="work/format_requirements.json")
     parser.add_argument("--output", "-o", required=True, help="Plan output path")
+    parser.add_argument("--include-brief-excerpt", action="store_true", help="Append a brief excerpt for offline review")
     args = parser.parse_args()
 
     output = Path(args.output)

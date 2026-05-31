@@ -1,5 +1,22 @@
 # Worklog
 
+## v1.3.2 architecture refinement - 2026-06-01
+
+### Direction
+
+Tighten the modular architecture around AI-led authoring with script-backed evidence, not script-dominated conversion.
+
+### Changed
+
+- Added an AI authoring reference that separates deterministic script responsibilities from context-aware AI decisions.
+- Reframed `work/authoring_plan.md` as a resumable execution index instead of a duplicated authoring brief.
+- Softened overly absolute rules for damaged tables, image groups, and image-only formulas so high-confidence contextual reconstruction remains available with review notes.
+- Standardized pipeline format requirements as `work/format_requirements.json`.
+
+### Added
+
+- `scripts/run_module.py` runs a module command and records successful inputs and outputs in `work/pipeline_manifest.json`.
+
 ## v1.3.2 - 2026-06-01
 
 ### Direction

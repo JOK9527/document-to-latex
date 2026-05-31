@@ -146,6 +146,7 @@ Read `references/docx-workflow.md` and `references/nwpuers-workflow.md` before c
 - Without reliable visual or formula parsing, do not guess LaTeX for image-only formulas. If visual/context confidence is high, reconstruct editable LaTeX and mark it for review; otherwise keep the formula image or a visible placeholder in the original location.
 - Put generated figures under `content/figures/`.
 - Keep small and medium tables near the related text for reviewability.
+- Record unresolved defects in `conversion_report.md`.
 
 ## Modular Pipeline
 
