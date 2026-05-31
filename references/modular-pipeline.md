@@ -41,52 +41,24 @@ project/
   conversion_report.md
 ```
 
-## Modules
+## Module Contracts
 
-1. Source inventory
-   - Input: `source/`
-   - Output: `work/document_profile.json`
-   - Rerun when source files change.
+Use these module IDs in `scripts/run_module.py --module` and `scripts/pipeline_manifest.py check --module`. Keep IDs stable between reruns.
 
-2. DOCX semantic extraction
-   - Input: primary DOCX
-   - Output: `work/docx_semantic_ir.json`, `work/docx_semantic_ir_summary.md`, exported assets
-   - Rerun when the Word source changes.
+| Module ID | Responsibility | Required inputs | Saved outputs | Default runner | Rerun when |
+| --- | --- | --- | --- | --- | --- |
+| `source_inventory` | Identify source files and roles | `source/` or primary Word file | `work/document_profile.json` | `scripts/detect_document.py` | Source files are added, removed, renamed, or replaced |
+| `docx_semantic_extraction` | Extract DOCX semantic IR, summary, and assets | Primary `.docx` | `work/docx_semantic_ir.json`, `work/docx_semantic_ir_summary.md`, `work/docx_assets/` | `scripts/build_docx_semantic_ir.py` | The Word source changes |
+| `authoring_brief` | Summarize IR into AI authoring guidance | `work/docx_semantic_ir.json` | `work/docx_authoring_brief.md` | `scripts/write_docx_authoring_brief.py` | IR or authoring rules change |
+| `template_analysis` | Inspect template structure and compile surface | Template directory or main `.tex` | `work/template_analysis.json` | `scripts/analyze_template.py` | Template files or selected entry point change |
+| `format_requirements` | Extract typed or uploaded formatting requirements | Requirement text or guide | `work/format_requirements.json` | `scripts/extract_format_requirements.py` | Requirement source changes |
+| `authoring_plan` | Create a resumable execution index | Brief, IR, template analysis, format requirements | `work/authoring_plan.md` | `scripts/write_authoring_plan.py` | Any planning input changes |
+| `latex_authoring` | Write or update final LaTeX content and assets | Plan, brief, IR, template analysis, user constraints | `project/main.tex`, `project/content/`, `project/template/` or preserved template files | AI authoring with local file edits | A chapter, section, table, figure, formula, or template bridge changes |
+| `compilation` | Compile the project and capture result | `project/` | `project/compile_result.json`, PDF/logs when available | `scripts/compile_latex.py` | LaTeX or assets change |
+| `quality_gate` | Check delivery risks and unresolved warnings | `project/`, optional IR | `project/quality_gate.json` or `project/quality_gate.md` | `scripts/quality_gate.py` | Authoring, assets, or quality mode change |
+| `conversion_report` | Record assumptions, defects, results, and review items | Profile, compile result, template analysis, requirements, quality gate | `project/conversion_report.md` | `scripts/write_conversion_report.py` | Any upstream result or review item changes |
 
-3. Authoring brief
-   - Input: DOCX semantic IR
-   - Output: `work/docx_authoring_brief.md`
-   - Rerun when extraction or conversion rules change.
-
-4. Template analysis and preprocessing
-   - Input: template files and format requirements
-   - Output: `work/template_analysis.json`, `work/format_requirements.json`
-   - Rerun when the template or requirements change.
-
-5. Authoring plan
-   - Input: authoring brief, semantic IR, template analysis, format requirements
-   - Output: `work/authoring_plan.md`
-   - Rerun when extraction, template analysis, or authoring rules change.
-
-6. LaTeX authoring
-   - Input: authoring plan, authoring brief, semantic IR, template analysis, user constraints
-   - Output: `project/` LaTeX files
-   - Rerun at chapter, section, or asset granularity whenever possible.
-
-7. Compilation
-   - Input: `project/`
-   - Output: PDF, compile logs, local repair notes
-   - Rerun after LaTeX changes.
-
-8. Quality gate
-   - Input: `project/`, optional DOCX semantic IR
-   - Output: `project/quality_gate.md` or JSON
-   - Rerun after authoring or asset changes.
-
-9. Conversion report
-   - Input: all module outputs and unresolved notes
-   - Output: `project/conversion_report.md`
-   - Rerun before delivery.
+For scoped reruns, append a stable scope after the top-level ID, such as `latex_authoring:chapter3` or `latex_authoring:table-3-1`. Use scoped IDs only when the output can be rerun independently and the scope is clear.
 
 ## Resume Rules
 

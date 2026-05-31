@@ -115,7 +115,7 @@ Treat these files as module boundaries. If the DOCX has not changed, reuse the s
 - Preserve figure order and captions when reliable.
 - Detect possible figure groups before emitting standalone figures. Choose shared caption, separate captions, subfigure labels, or an in-place review placeholder when the relationship is unclear.
 - Generate captions only when the figure role is obvious, and record this.
-- Do not use `longtable` as an image-layout workaround. Multi-image content should remain figure semantics.
+- Avoid using `longtable` as an image-layout workaround. Multi-image content should remain figure semantics unless the source is genuinely a data table.
 - Reconstruct formulas as editable LaTeX only when confident.
 - Treat Word/PDF formula layout as a draft signal, not a formatting authority.
 - Preserve math content exactly, then rebuild equation environments, labels, references, and visual layout using `references/formula-normalization.md`.
@@ -158,14 +158,28 @@ Save module outputs under `work/` and final delivery outputs under `project/` so
 Recommended downstream commands:
 
 ```bash
-python scripts/compile_latex.py project \
-  --output project/compile_result.json
+python scripts/run_module.py \
+  --module compilation \
+  --input project \
+  --output project/compile_result.json \
+  -- python scripts/compile_latex.py project --output project/compile_result.json
 
-python scripts/quality_gate.py project \
-  --ir work/docx_semantic_ir.json \
-  --output project/quality_gate.json
+python scripts/run_module.py \
+  --module quality_gate \
+  --input project \
+  --input work/docx_semantic_ir.json \
+  --output project/quality_gate.json \
+  -- python scripts/quality_gate.py project --ir work/docx_semantic_ir.json --output project/quality_gate.json
 
-python scripts/write_conversion_report.py \
+python scripts/run_module.py \
+  --module conversion_report \
+  --input work/document_profile.json \
+  --input project/compile_result.json \
+  --input work/template_analysis.json \
+  --input work/format_requirements.json \
+  --input project/quality_gate.json \
+  --output project/conversion_report.md \
+  -- python scripts/write_conversion_report.py \
   --metadata work/document_profile.json \
   --compile-result project/compile_result.json \
   --template-profile work/template_analysis.json \

@@ -66,7 +66,7 @@ Before writing separate figures, inspect adjacent images as possible figure grou
 - several images are subfigures labeled `(a)`, `(b)`, `(c)`, and share one caption
 - several images have no reliable caption relationship and should remain as an in-place review placeholder
 
-Do not use `longtable` to lay out image groups. Use `figure` with `subfigure`/`subcaption`, a local `minipage` layout, or a visible in-place placeholder when the relationship is uncertain. If a table-like layout is only a visual container for images, keep the semantic object as a figure, not a table.
+Avoid using `longtable` to lay out image groups. Prefer `figure` with `subfigure`/`subcaption`, a local `minipage` layout, or a visible in-place placeholder when the relationship is uncertain. If a table-like layout is only a visual container for images, keep the semantic object as a figure, not a table.
 
 When captions are missing, infer them only when nearby context makes the role clear. Otherwise preserve the images in their source position and write a visible review note plus a `conversion_report.md` item.
 
@@ -93,7 +93,7 @@ Some DOCX formulas are stored as WMF/EMF/OLE images rather than editable OMML.
 - Prefer semantic conversion for native OMML formulas.
 - Convert WMF/EMF images to PNG/PDF fallbacks before LaTeX delivery.
 - If a converted fallback may not match Word rendering, show it in place and mark it for manual review.
-- Without reliable visual recognition, do not invent LaTeX for image-only formulas.
+- If visual/context confidence is high, reconstruct image-only formulas as editable LaTeX and mark them for review. Otherwise keep a supported image fallback or visible placeholder in the original location.
 
 ## Local Exceptions
 

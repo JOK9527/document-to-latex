@@ -151,7 +151,7 @@ Read `references/output-project-structure.md`, `references/chapter-splitting.md`
 
 ## Modular Pipeline
 
-Treat conversion as independent modules with saved outputs. Each module must be independently rerunnable from its declared inputs:
+Treat conversion as independent modules with saved outputs. Use the standard module IDs and contracts in `references/modular-pipeline.md`. Each module must be independently rerunnable from its declared inputs:
 
 - source inventory writes a profile under `work/`
 - DOCX extraction writes `work/docx_semantic_ir.json`
@@ -189,7 +189,7 @@ Use `scripts/quality_gate.py --fail-on-warning` only for strict delivery checks.
 - Read `references/cross-references.md` for labels, refs, citations, and naming rules.
 - Read `references/formula-normalization.md` before reconstructing formulas from Word or PDF references.
 - Read `references/latex-maintainability.md` for maintainable LaTeX.
-- Read `references/modular-pipeline.md` for module boundaries, saved outputs, and resume rules.
+- Read `references/modular-pipeline.md` for standard module IDs, module boundaries, saved outputs, and resume rules.
 - Read `references/chinese-latex.md` for Chinese documents.
 - Read `references/troubleshooting.md` when compilation fails.
 

@@ -20,6 +20,20 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 
+STANDARD_MODULE_IDS = [
+    "source_inventory",
+    "docx_semantic_extraction",
+    "authoring_brief",
+    "template_analysis",
+    "format_requirements",
+    "authoring_plan",
+    "latex_authoring",
+    "compilation",
+    "quality_gate",
+    "conversion_report",
+]
+
+
 def format_command(command: list[str]) -> str:
     if os.name == "nt":
         return subprocess.list2cmdline(command)
@@ -44,7 +58,8 @@ def record_success(args: argparse.Namespace, command: list[str]) -> dict[str, An
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run one document-to-latex pipeline module and record its successful outputs."
+        description="Run one document-to-latex pipeline module and record its successful outputs.",
+        epilog="Standard module IDs: " + ", ".join(STANDARD_MODULE_IDS) + ". Scoped IDs may use module:scope.",
     )
     parser.add_argument("--manifest", default="work/pipeline_manifest.json", help="Pipeline manifest path")
     parser.add_argument("--module", required=True, help="Stable module name")

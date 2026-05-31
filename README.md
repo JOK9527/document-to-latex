@@ -41,6 +41,7 @@ This skill behaves like an academic editing assistant, not a format dumper. It s
 - render extracted DOCX data tables even when the source forgot the table caption
 - use template-native commands when adapting a template
 - run conversion as loosely coupled modules with saved intermediate artifacts
+- use stable module IDs for resumable runs
 - resume from any module when its upstream artifacts already exist and remain valid
 - record module freshness in `work/pipeline_manifest.json`
 - mark uncertain tables, formulas, captions, and references for review

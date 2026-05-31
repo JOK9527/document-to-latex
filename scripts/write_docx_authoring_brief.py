@@ -59,13 +59,13 @@ def write_brief(ir: dict[str, Any]) -> str:
         "",
         "This brief is for AI authoring. Use it with the DOCX source, template profile, and format requirements before writing final LaTeX.",
         "",
-        "## Non-Negotiable Rules",
+        "## Authoring Rules",
         "",
         "- Treat the DOCX as an imperfect academic draft, not a perfect source.",
         "- Preserve meaning and technical claims.",
         "- Fix obvious formatting noise, but do not invent missing data.",
         "- Use template-native commands and keep style out of content files.",
-        "- Rebuild clear academic tables as three-line tables; do not preserve Word border grids unless required.",
+        "- Rebuild clear academic tables as three-line tables; avoid preserving Word border grids unless required.",
         "- Render every extracted data table in LaTeX when rows and cells are available, even if the DOCX has no caption.",
         "- For a table without a caption, infer a conservative provisional caption from nearby text or table contents and record it in the report.",
         "- Treat Word/PDF formula layout as untrusted: preserve math content, then rebuild LaTeX environments, numbering, labels, references, and visual form.",
@@ -116,7 +116,7 @@ def write_brief(ir: dict[str, Any]) -> str:
         notes = table.get("quality_notes") or []
         lines.append(f"- {table.get('id')}: {len(table.get('rows') or [])} row(s), caption: {caption}")
         if not table.get("caption"):
-            lines.append("  - Required: do not skip this table. Create a provisional semantic caption and list it as an assumption in conversion_report.md.")
+            lines.append("  - Default: render this table if rows and cells are meaningful. Use a review placeholder only when it is damaged, empty, or layout-only; record the choice in conversion_report.md.")
         lines.append("  - Authoring: use a three-line table with template-native rules or booktabs.")
         for note in notes:
             lines.append(f"  - Review: {note}")
@@ -130,7 +130,7 @@ def write_brief(ir: dict[str, Any]) -> str:
             "- Use `equation + aligned` when one logical formula needs multiple lines but only one number.",
             "- Avoid numbered `align` unless every row is independently referenced.",
             "- Use standard `pmatrix`/`bmatrix`/`matrix` for ordinary matrices. If compiled matrices look stretched while the source looks normal, inspect template line-height hooks before changing body formulas.",
-            "- Keep short inline Gaussian binomial calculations in place with `\\displaystyle`; do not detach them into centered display math unless they are genuinely long.",
+            "- Keep short inline Gaussian binomial calculations in place with `\\displaystyle`; avoid detaching them into centered display math unless they are genuinely long.",
             "- When one formula-shape issue is confirmed, search the whole chapter or project for the same macro/context before stopping.",
             "- Define repeated special math shapes in the template or preamble, but keep compact matrix macros as fallbacks rather than the ordinary matrix path.",
             "",
