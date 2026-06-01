@@ -27,19 +27,20 @@ For graduate theses, default to academic degree. Ask about professional degree o
 
 ## Workflow
 
-1. Inspect `source/` for the primary `.docx`.
+1. Inspect `source/` for the primary `.docx` or legacy `.doc`.
 2. Ask the thesis type question if needed and record the decision under `work/`.
 3. Build and save `work/document_profile.json`.
-4. Build and save the DOCX semantic IR, summary, and extracted assets.
-5. Generate and save `work/docx_authoring_brief.md`.
-6. Create the NWPU project skeleton with `scripts/create_nwputhesis_project.py`.
-7. Write `work/authoring_plan.md` as the handoff into LaTeX authoring.
-8. Fill the appropriate `content/thesis/undergraduate/` or `content/thesis/graduate/` files.
-9. Use three-line tables by default; extracted meaningful DOCX data tables must be rendered even when the original table caption is missing.
-10. Preserve uncertain figures, tables, and formulas in place with visible review placeholders instead of silently dropping or moving them.
-11. Compile when possible and save the compile result.
-12. Run the quality gate, preferably with the DOCX semantic IR for table coverage checks.
-13. Write a conversion report with source defects, assumptions, quality gate results, and manual review items.
+4. Convert legacy `.doc` sources to `.docx` with a recorded fallback chain when needed.
+5. Build and save the DOCX semantic IR, summary, and extracted assets.
+6. Generate and save `work/docx_authoring_brief.md`.
+7. Create the NWPU project skeleton with `scripts/create_nwputhesis_project.py`.
+8. Write `work/authoring_plan.md` as the handoff into LaTeX authoring.
+9. Fill the appropriate `content/thesis/undergraduate/` or `content/thesis/graduate/` files.
+10. Use three-line tables by default; extracted meaningful DOCX data tables must be rendered even when the original table caption is missing.
+11. Preserve uncertain figures, tables, and formulas in place with visible review placeholders instead of silently dropping or moving them.
+12. Compile when possible and save the compile result.
+13. Run the quality gate, preferably with the DOCX semantic IR for table coverage checks.
+14. Write a conversion report with source defects, assumptions, quality gate results, and manual review items.
 
 Each stage should save its output under `work/` or `project/` so extraction, planning, project creation, authoring, compilation, quality checks, and reporting can be rerun independently.
 
@@ -86,6 +87,14 @@ This branch behaves like an NWPU thesis editing assistant, not a format dumper. 
 - Standardizes module output paths under `work/` and `project/`.
 - Lets conversion reports include quality gate results.
 
+## V1.3.3 Focus
+
+- Adds a standard `.doc` to `.docx` fallback chain with diagnostics.
+- Supports Strict and Transitional OOXML namespace detection during DOCX extraction.
+- Records mojibake and risky symbol issues in the DOCX IR, with optional high-confidence repair.
+- Adds experiment-report authoring rules for cover tables, TOC entries, data tables, figure groups, and long captions.
+- Separates local LaTeX compiler absence as an environment blocker in compile/report output.
+
 ## V1.2 Focus
 
 - Detect adjacent or grid-aligned images as possible figure groups before emitting separate figures.
@@ -125,6 +134,7 @@ The upstream template is GPLv3; see `assets/templates/nwputhesis/UPSTREAM_LICENS
 ## Main Scripts
 
 - `scripts/detect_document.py`: source profile.
+- `scripts/convert_doc_to_docx.py`: legacy `.doc` conversion fallback chain and validation.
 - `scripts/build_docx_semantic_ir.py`: DOCX semantic IR and defect report.
 - `scripts/write_docx_authoring_brief.py`: AI authoring brief from DOCX IR.
 - `scripts/create_nwputhesis_project.py`: create a clean NWPU thesis project.
@@ -137,4 +147,6 @@ The upstream template is GPLv3; see `assets/templates/nwputhesis/UPSTREAM_LICENS
 
 ## Version
 
-Current development target: `v1.3.2`.
+Current development target: `v1.3.3`.
+
+PDF-only conversion is intentionally deferred until a multimodal or MinerU-level layout pipeline is available.

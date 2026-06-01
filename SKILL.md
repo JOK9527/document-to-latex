@@ -1,4 +1,4 @@
----
+﻿---
 name: doc2latex-for-nwpuers
 description: Convert DOCX academic drafts into Northwestern Polytechnical University thesis LaTeX projects using the embedded nwputhesis template. Use when Codex needs to help NWPU undergraduate, master, or PhD students turn imperfect Word drafts into clean, compilable nwputhesis projects with correct structure, metadata, figures, tables, formulas, citations, and review reports.
 ---
@@ -40,30 +40,32 @@ Use this skill for explicit slash-command requests and for plain-language reques
 Before extraction or generation, inspect `source/` and ask only:
 
 ```text
-请确认论文类型：本科、硕士、博士？
+璇风‘璁よ鏂囩被鍨嬶細鏈銆佺澹€佸崥澹紵
 ```
 
 Proceed without asking when the thesis type is already explicit.
 
-For graduate theses, default to academic degree. Ask whether it is professional degree only if the user mentions professional degree, engineering master, 专硕, 工程硕士, or a similar cue.
+For graduate theses, default to academic degree. Ask whether it is professional degree only if the user mentions professional degree, engineering master, 涓撶, 宸ョ▼纭曞＋, or a similar cue.
 
 ## Standard Workflow
 
 1. Inspect `source/` for the primary DOCX and optional reference materials.
 2. Confirm thesis type: bachelor, master, or PhD, and record `work/thesis_type_decision.md`.
-3. Run `scripts/detect_document.py` on the DOCX source and save `work/document_profile.json`.
-4. Run `scripts/build_docx_semantic_ir.py` and save the IR, summary, and extracted assets.
-5. Run `scripts/write_docx_authoring_brief.py`, save `work/docx_authoring_brief.md`, and read the brief.
-6. Create the target project with `scripts/create_nwputhesis_project.py`, using the thesis-type decision as a reusable module input.
-7. Write `work/authoring_plan.md` from the saved IR, brief, NWPU project decision, and user constraints.
-8. Fill the selected template content directory:
+3. Run `scripts/detect_document.py` on the primary Word source and save `work/document_profile.json`.
+4. For legacy `.doc`, run the `.doc` conversion fallback chain before extraction and save `work/doc_conversion_report.json`.
+5. Run `scripts/build_docx_semantic_ir.py` and save the IR, summary, and extracted assets.
+6. If detection or IR shows likely UTF-8/GBK mojibake, inspect repair candidates before authoring; apply only high-confidence repairs and record risky symbol substitutions for review.
+7. Run `scripts/write_docx_authoring_brief.py`, save `work/docx_authoring_brief.md`, and read the brief.
+8. Create the target project with `scripts/create_nwputhesis_project.py`, using the thesis-type decision as a reusable module input.
+9. Write `work/authoring_plan.md` from the saved IR, brief, NWPU project decision, and user constraints.
+10. Fill the selected template content directory:
    - bachelor: `content/thesis/undergraduate/`
    - master or PhD: `content/thesis/graduate/`
-9. Update metadata in `info.tex`.
-10. Write chapters, abstract, references, appendices, acknowledgements, formula-normalized LaTeX, and review notes.
-11. Compile if possible and save `project/compile_result.json`.
-12. Run `scripts/quality_gate.py` and save `project/quality_gate.json` or Markdown.
-13. Write `project/conversion_report.md`.
+11. Update metadata in `info.tex`.
+12. Write chapters, abstract, references, appendices, acknowledgements, formula-normalized LaTeX, and review notes.
+13. Compile if possible and save `project/compile_result.json`.
+14. Run `scripts/quality_gate.py` and save `project/quality_gate.json` or Markdown.
+15. Write `project/conversion_report.md`.
 
 ## Project Creation
 
@@ -82,6 +84,15 @@ python scripts/create_nwputhesis_project.py project --type master --professional
 ```
 
 The script deletes unused undergraduate or graduate content from the generated project so the output stays clean.
+
+## Source Priority
+
+Use sources in this order:
+
+1. `.docx` as the primary editable source.
+2. `.doc` only after conversion to `.docx` using the standard fallback chain: Word COM first, LibreOffice headless second, Pandoc only as a low-fidelity diagnostic fallback, then user-assisted manual save-as when automation fails.
+3. PDF as optional visual reference only.
+4. Typed user instructions and formatting guides as constraints, not content sources unless explicitly requested.
 
 ## Embedded Template Policy
 
@@ -121,6 +132,10 @@ Run `scripts/write_docx_authoring_brief.py` and read the brief before writing La
 
 Read `references/docx-workflow.md` and `references/nwpuers-workflow.md` before converting DOCX files.
 
+DOCX extraction must support both Transitional OOXML and Strict OOXML. If `word/document.xml` exists but the body is not found, treat it as a namespace/package diagnostic first, not as a corrupt-file conclusion.
+
+For legacy `.doc`, run `scripts/convert_doc_to_docx.py` or follow the fallback chain in `references/docx-workflow.md`. After conversion, rerun `scripts/detect_document.py` and inspect `ooxml_flavor`, `has_body`, and mojibake warnings before building the IR.
+
 ## Authoring Rules
 
 - Map Word headings to NWPU chapter and section structure.
@@ -134,6 +149,13 @@ Read `references/docx-workflow.md` and `references/nwpuers-workflow.md` before c
 - Avoid using `longtable` to lay out image groups. Use a figure/subfigure/minipage layout when confident, or keep an in-place figure-group placeholder.
 - Do not invent missing data, references, formulas, committee members, student numbers, or signatures.
 - Keep uncertain formulas, rough tables, and ambiguous image groups in their source position as visible review placeholders when faithful reconstruction is unsafe.
+- Fix obvious formatting noise when it does not change meaning.
+- Treat old `.doc` conversion mojibake as a first-class source defect. Detect likely UTF-8/GBK mojibake before authoring; apply high-confidence phrase-level repairs only when the repaired text is clearly better, and record repaired samples in `conversion_report.md`.
+- Do not globally repair single-character symbol-like cases such as `胃` to `theta`; review them only in formula or variable context.
+- Infer headings only when numbering, style, and context agree.
+- Do not invent missing data, captions, or references.
+- Give generated captions only when the image role is clear, and mark them in the report.
+- Preserve uncertain formulas as review notes or image fallbacks when editable reconstruction is unsafe.
 - For reliable formulas, ignore Word spacing, line breaks, indentation, and manual equation numbers; reconstruct the ideal LaTeX environment.
 - Number only core definition/theorem/lemma/proposition formulas or formulas explicitly referenced later.
 - Use `equation + label` for numbered formulas, `equation + aligned` for one logical multi-line numbered formula, and `\[ aligned \]` for unnumbered derivations.
@@ -154,6 +176,7 @@ Treat conversion as independent modules with saved outputs. Use the standard NWP
 
 - source inventory writes `work/document_profile.json`
 - thesis type decision writes `work/thesis_type_decision.md`
+- legacy DOC conversion writes `work/doc_conversion_report.json`
 - DOCX extraction writes `work/docx_semantic_ir.json`
 - authoring brief writes `work/docx_authoring_brief.md`
 - NWPU project creation writes the selected `project/` skeleton
@@ -175,10 +198,13 @@ Default to balanced quality checks.
 
 Use `scripts/quality_gate.py --fail-on-warning` only for strict delivery checks. In balanced mode, warnings should be summarized in `conversion_report.md` and fixed when they indicate real semantic drift.
 
+Compilation is a separate check from conversion quality. If `xelatex`, `latexmk`, or the requested engine is unavailable, record an environment blocker in `project/compile_result.json` and `conversion_report.md`; do not call the conversion failed solely because the local compiler is missing. Suggest Overleaf or another LaTeX environment when the project structure is otherwise complete.
+
 ## References
 
 - Read `references/nwpuers-workflow.md` first.
 - Read `references/docx-workflow.md` for DOCX extraction and authoring.
+- Read `references/experiment-report.md` when the source is an experiment report, course report, lab report, or similar chaptered report.
 - Read `references/ai-authoring.md` for the AI/script responsibility boundary.
 - Read `references/content-structure.md` for figures and tables.
 - Read `references/cross-references.md` for labels and references.
@@ -192,6 +218,7 @@ Use `scripts/quality_gate.py --fail-on-warning` only for strict delivery checks.
 
 - `scripts/create_nwputhesis_project.py`: create a clean NWPU thesis project.
 - `scripts/detect_document.py`: quick source profile.
+- `scripts/convert_doc_to_docx.py`: legacy `.doc` to `.docx` conversion with Word COM, LibreOffice, Pandoc, and manual fallback diagnostics.
 - `scripts/build_docx_semantic_ir.py`: DOCX semantic IR and defect report.
 - `scripts/write_docx_authoring_brief.py`: authoring brief from DOCX IR.
 - `scripts/write_authoring_plan.py`: resumable authoring plan from saved artifacts.

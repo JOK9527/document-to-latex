@@ -55,6 +55,28 @@ Correct the v1.3 matrix-shape assumption and distinguish template line-height po
 - If editor preview and compiled PDF disagree, inspect the template before rewriting formula bodies.
 - Do not convert short inline list calculations to display math unless the formula is genuinely long.
 
+## v1.3.3 - 2026-06-02
+
+### Direction
+
+Turn conversion pain points from the V1.3 test run into explicit workflow contracts and script diagnostics.
+
+### Added
+
+- `.doc` conversion fallback script: Word COM, LibreOffice headless, Pandoc diagnostic fallback, then manual save-as guidance.
+- Strict and Transitional OOXML namespace detection in DOCX extraction.
+- DOCX IR text issue records for likely UTF-8/GBK mojibake and risky symbol-like characters.
+- Optional high-confidence mojibake repair flag for DOCX extraction.
+- Experiment-report reference rules for cover/layout tables, TOC pages, data tables, figure groups, duplicate paragraphs, and long captions.
+- Conversion report support for repeatable `--source` and `--warning` arguments plus JSON-list aliases.
+- Compilation result environment blocker flag when no local LaTeX compiler is available.
+
+### Guardrails
+
+- Do not treat missing local `xelatex` or `latexmk` as a content-conversion failure.
+- Do not globally rewrite single-character symbol-like mojibake; require formula context.
+- Treat Pandoc `.doc` conversion as low-fidelity evidence unless validated by inspection.
+
 ## v1.3 - 2026-06-01
 
 ### Direction

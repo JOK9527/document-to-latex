@@ -29,6 +29,7 @@ work/
   pipeline_manifest.json
   document_profile.json
   thesis_type_decision.md
+  doc_conversion_report.json
   docx_semantic_ir.json
   docx_semantic_ir_summary.md
   docx_authoring_brief.md
@@ -49,6 +50,7 @@ Use these module IDs in `scripts/run_module.py --module` and `scripts/pipeline_m
 | --- | --- | --- | --- | --- | --- |
 | `source_inventory` | Identify source files and roles | `source/` or primary Word file | `work/document_profile.json` | `scripts/detect_document.py` | Source files are added, removed, renamed, or replaced |
 | `thesis_type_decision` | Record bachelor/master/PhD and professional-degree choice | User answer and DOCX/template cues | `work/thesis_type_decision.md` | AI decision with saved note | Thesis type or degree status changes |
+| `doc_conversion` | Convert legacy `.doc` into validated `.docx` and record fallback attempts | Primary `.doc` | Converted `.docx`, `work/doc_conversion_report.json` | `scripts/convert_doc_to_docx.py` | The `.doc` source changes or conversion fidelity is rejected |
 | `docx_semantic_extraction` | Extract DOCX semantic IR, summary, and assets | Primary `.docx` | `work/docx_semantic_ir.json`, `work/docx_semantic_ir_summary.md`, `work/docx_assets/` | `scripts/build_docx_semantic_ir.py` | The Word source changes |
 | `authoring_brief` | Summarize IR into AI authoring guidance | `work/docx_semantic_ir.json` | `work/docx_authoring_brief.md` | `scripts/write_docx_authoring_brief.py` | IR or authoring rules change |
 | `nwpu_project_creation` | Create the selected `nwputhesis` skeleton | Embedded template and thesis type decision | `project/` | `scripts/create_nwputhesis_project.py` | Thesis type, professional-degree status, or embedded template changes |
@@ -62,6 +64,7 @@ For scoped reruns, append a stable scope after the top-level ID, such as `latex_
 
 ## Resume Rules
 
+- If `work/doc_conversion_report.json` exists and the source `.doc` has not changed, reuse the converted `.docx` unless fidelity was rejected.
 - If `work/docx_semantic_ir.json` exists and the source DOCX has not changed, reuse it.
 - If `work/docx_authoring_brief.md` exists and the IR has not changed, reuse it.
 - If `project/` already matches `work/thesis_type_decision.md`, reuse it.

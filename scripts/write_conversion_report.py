@@ -60,6 +60,9 @@ def parse_list(raw: str | None) -> list[str]:
             return [str(item) for item in parsed]
         return [str(parsed)]
     except json.JSONDecodeError:
+        stripped = raw.strip()
+        if stripped.startswith("[") and stripped.endswith("]"):
+            raw = stripped[1:-1]
         return [item.strip() for item in re_split_list(raw) if item.strip()]
 
 
@@ -69,14 +72,37 @@ def re_split_list(raw: str) -> list[str]:
     return re.split(r"[;,]", raw)
 
 
+def merge_lists(*groups: list[str]) -> list[str]:
+    merged: list[str] = []
+    for group in groups:
+        for item in group:
+            if item and item not in merged:
+                merged.append(item)
+    return merged
+
+
+def compile_status(compile_result: dict[str, Any]) -> tuple[str, list[str]]:
+    if not compile_result:
+        return "Not run", []
+    if compile_result.get("environment_blocker"):
+        return "Environment blocker", [str(compile_result.get("error", "LaTeX compiler unavailable."))]
+    if compile_result.get("success") is True:
+        return "True", []
+    if compile_result.get("success") is False:
+        return "False", []
+    return str(compile_result.get("success", "Not run")), []
+
+
 def write_report(args: argparse.Namespace) -> str:
     metadata = load_json(args.metadata)
     compile_result = load_json(args.compile_result)
     template_profile = load_json(args.template_profile)
     format_requirements = load_json(args.format_requirements)
     quality_gate = load_quality_gate(args.quality_gate)
-    warnings = parse_list(args.warnings)
-    sources = parse_list(args.sources)
+    warnings = merge_lists(parse_list(args.warnings), parse_list(args.warnings_json), args.warning or [])
+    sources = merge_lists(parse_list(args.sources), parse_list(args.sources_json), args.source or [])
+    compile_success, compile_notes = compile_status(compile_result)
+    warnings = merge_lists(warnings, compile_notes)
 
     lines = [
         "# Conversion Report",
@@ -86,7 +112,7 @@ def write_report(args: argparse.Namespace) -> str:
         f"- Source: {metadata.get('path', 'Not recorded')}",
         f"- Format: {metadata.get('format', 'Not recorded')}",
         f"- Template: {args.template or 'Default or not recorded'}",
-        f"- Compile success: {compile_result.get('success', 'Not run')}",
+        f"- Compile status: {compile_success}",
         "",
         "## Source Materials",
         "",
@@ -133,6 +159,7 @@ def write_report(args: argparse.Namespace) -> str:
             "",
             f"- Command: {compile_result.get('command', 'Not recorded')}",
             f"- Log: {compile_result.get('log_path', 'Not recorded')}",
+            f"- Environment blocker: {compile_result.get('environment_blocker', False)}",
         ]
     )
 
@@ -148,8 +175,12 @@ def main() -> int:
     parser.add_argument("--quality-gate", help="JSON or Markdown result from quality_gate.py")
     parser.add_argument("--template", help="Template name or path used")
     parser.add_argument("--requirements-summary", help="Short text summary of applied requirements")
-    parser.add_argument("--sources", help="JSON list of original source material paths or descriptions")
-    parser.add_argument("--warnings", help="JSON list of warning strings")
+    parser.add_argument("--sources", help="Backward-compatible source list: JSON list or semicolon/comma-separated text")
+    parser.add_argument("--warnings", help="Backward-compatible warning list: JSON list or semicolon/comma-separated text")
+    parser.add_argument("--sources-json", help="JSON list of original source material paths or descriptions")
+    parser.add_argument("--warnings-json", help="JSON list of warning strings")
+    parser.add_argument("--source", action="append", help="Repeatable source material path or description")
+    parser.add_argument("--warning", action="append", help="Repeatable warning/manual review item")
     parser.add_argument("--output", default="conversion_report.md", help="Report path")
     args = parser.parse_args()
 
