@@ -19,15 +19,16 @@ The workflow should be used for explicit slash-command requests and for plain-la
 
 1. Ask the mandatory preflight question unless the user already answered it.
 2. Preserve original materials in `source/`.
-3. Build and save a DOCX semantic IR with `build_docx_semantic_ir.py`.
-4. Generate and save a DOCX authoring brief.
-5. Analyze and preprocess any user template as a reusable module output.
-6. Write `work/authoring_plan.md` as the handoff into LaTeX authoring.
-7. Rewrite the content into the target LaTeX structure.
-8. Preserve uncertain figures, tables, and formulas in place with visible review placeholders instead of silently dropping or moving them.
-9. Compile when possible.
-10. Run the quality gate and save the report.
-11. Report source defects, assumptions, quality gate results, and manual review items.
+3. Convert legacy `.doc` sources to `.docx` with a recorded fallback chain when needed.
+4. Build and save a DOCX semantic IR with `build_docx_semantic_ir.py`.
+5. Generate and save a DOCX authoring brief.
+6. Analyze and preprocess any user template as a reusable module output.
+7. Write `work/authoring_plan.md` as the handoff into LaTeX authoring.
+8. Rewrite the content into the target LaTeX structure.
+9. Preserve uncertain figures, tables, and formulas in place with visible review placeholders instead of silently dropping or moving them.
+10. Compile when possible.
+11. Run the quality gate and save the report.
+12. Report source defects, assumptions, quality gate results, and manual review items.
 
 ## Design Position
 
@@ -72,6 +73,14 @@ This skill behaves like an academic editing assistant, not a format dumper. It s
 - Standardizes module output paths under `work/` and `project/`.
 - Lets conversion reports include quality gate results.
 
+## V1.3.3 Focus
+
+- Adds a standard `.doc` to `.docx` fallback chain with diagnostics.
+- Supports Strict and Transitional OOXML namespace detection during DOCX extraction.
+- Records mojibake and risky symbol issues in the DOCX IR, with optional high-confidence repair.
+- Adds experiment-report authoring rules for cover tables, TOC entries, data tables, figure groups, and long captions.
+- Separates local LaTeX compiler absence as an environment blocker in compile/report output.
+
 ## V1.2 Focus
 
 - Detect adjacent or grid-aligned images as possible figure groups before emitting separate figures.
@@ -84,6 +93,7 @@ This skill behaves like an academic editing assistant, not a format dumper. It s
 ## Main Scripts
 
 - `scripts/detect_document.py`: source profile.
+- `scripts/convert_doc_to_docx.py`: legacy `.doc` conversion fallback chain and validation.
 - `scripts/build_docx_semantic_ir.py`: DOCX semantic IR and defect report.
 - `scripts/write_docx_authoring_brief.py`: AI authoring brief from DOCX IR.
 - `scripts/write_authoring_plan.py`: resumable authoring plan from saved artifacts.
@@ -97,6 +107,6 @@ This skill behaves like an academic editing assistant, not a format dumper. It s
 
 ## Version
 
-Current development target: `v1.3.2`.
+Current development target: `v1.3.3`.
 
 PDF-only conversion is intentionally deferred until a multimodal or MinerU-level layout pipeline is available.

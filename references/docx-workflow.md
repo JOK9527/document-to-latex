@@ -28,6 +28,26 @@ python scripts/run_module.py \
   -- python scripts/detect_document.py source/original.docx --output work/document_profile.json
 ```
 
+If the primary source is a legacy `.doc`, convert it before semantic extraction:
+
+```bash
+python scripts/run_module.py \
+  --module doc_conversion \
+  --input source/original.doc \
+  --output source/original.docx \
+  --output work/doc_conversion_report.json \
+  -- python scripts/convert_doc_to_docx.py source/original.doc --output source/original.docx --report work/doc_conversion_report.json
+```
+
+Use this fallback order:
+
+1. Word COM: best fidelity for old Word files, Chinese text, embedded images, OLE objects, and formula objects.
+2. LibreOffice headless: use when Word COM is unavailable, blocked by sandbox permissions, or times out.
+3. Pandoc: low-fidelity diagnostic fallback only; inspect tables, figures, formulas, and headings carefully afterward.
+4. Manual save-as: ask the user to open the `.doc` in Word or LibreOffice and save as `.docx` when automated conversion fails or fidelity is questionable.
+
+After any `.doc` conversion, rerun `detect_document.py` against the produced `.docx`. Check `has_body`, `ooxml_flavor`, and any mojibake warnings before building the IR.
+
 Run:
 
 ```bash
@@ -39,6 +59,20 @@ python scripts/run_module.py \
   --output work/docx_assets \
   -- python scripts/build_docx_semantic_ir.py source/original.docx --output work/docx_semantic_ir.json --summary work/docx_semantic_ir_summary.md --asset-dir work/docx_assets
 ```
+
+`build_docx_semantic_ir.py` auto-detects Transitional and Strict OOXML namespaces. If `word/document.xml` exists but the body is not found, read the package diagnostic in the error before treating the file as corrupt.
+
+When old `.doc` conversion creates likely UTF-8/GBK mojibake, run extraction once without repair to inspect samples. If the repair candidates are high-confidence phrase-level fixes, rerun with `--repair-mojibake` and record that choice:
+
+```bash
+python scripts/build_docx_semantic_ir.py source/original.docx \
+  --output work/docx_semantic_ir.json \
+  --summary work/docx_semantic_ir_summary.md \
+  --asset-dir work/docx_assets \
+  --repair-mojibake
+```
+
+Do not globally repair single-character symbol-like cases such as `胃` to `theta`; keep them as review items unless formula context makes the intended symbol clear.
 
 Then run:
 
@@ -91,12 +125,15 @@ Treat these files as module boundaries. If the DOCX has not changed, reuse the s
 ## What To Inspect
 
 - heading styles and heading-like paragraphs
+- cover pages, table-of-contents pages, and navigation-only entries that should not become body content
+- likely document type: article-like, report-like, thesis-like, experiment report, course design, or template-bound thesis
 - abstract, keywords, acknowledgements, appendix, and bibliography sections
 - inconsistent numbering or manual heading formatting
 - images without nearby captions
 - adjacent or grid-aligned images that may form a shared-caption or subfigure group
 - captions without nearby images or tables
 - tables with empty rows, uneven row widths, or unclear headers
+- layout tables used for cover pages or formatting rather than data
 - formulas represented as OMML, images, WMF/EMF fallbacks, OLE objects, or plain text
 - formulas with manual numbering, unreliable line breaks, stretched delimiters, or Word-only visual spacing
 - citation markers and bibliography candidates
@@ -104,6 +141,8 @@ Treat these files as module boundaries. If the DOCX has not changed, reuse the s
 ## Authoring Rules
 
 - Use source heading hierarchy when reliable.
+- Exclude generated table-of-contents entries from body authoring unless the source lacks real section headings and the entries are the only reliable outline.
+- Treat cover-page and metadata tables as front matter, not data tables.
 - Infer headings only when style, numbering, and context agree.
 - Keep small and medium tables near their discussion.
 - Rebuild tables as reviewable LaTeX when the structure is clear.
@@ -114,6 +153,8 @@ Treat these files as module boundaries. If the DOCX has not changed, reuse the s
 - Mark unclear tables instead of pretending they are clean.
 - Preserve figure order and captions when reliable.
 - Detect possible figure groups before emitting standalone figures. Choose shared caption, separate captions, subfigure labels, or an in-place review placeholder when the relationship is unclear.
+- If several adjacent images share one nearby caption or one following analysis paragraph, prefer a figure group or subfigures over unrelated standalone figures.
+- If a long figure caption contains analysis prose, keep the concise identifying phrase in `\caption{}` and move the explanation into normal body text.
 - Generate captions only when the figure role is obvious, and record this.
 - Avoid using `longtable` as an image-layout workaround. Multi-image content should remain figure semantics unless the source is genuinely a data table.
 - Reconstruct formulas as editable LaTeX only when confident.
@@ -148,6 +189,7 @@ Common defects:
 - formulas broken by Word spacing, manual line breaks, or stretched brackets
 - references pasted as plain text
 - mixed Chinese and English punctuation
+- mojibake after legacy `.doc` conversion; repair only high-confidence phrases and record risky symbol substitutions separately
 
 ## Output
 
@@ -185,5 +227,7 @@ python scripts/run_module.py \
   --template-profile work/template_analysis.json \
   --format-requirements work/format_requirements.json \
   --quality-gate project/quality_gate.json \
+  --source source/original.docx \
+  --warning "Record unresolved conversion assumptions here" \
   --output project/conversion_report.md
 ```

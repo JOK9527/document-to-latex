@@ -38,6 +38,7 @@ def compile_project(project: Path, main: str, engine: str, timeout: int) -> dict
     else:
         result = {
             "success": False,
+            "environment_blocker": True,
             "command": None,
             "log_path": str(log_path),
             "error": f"No LaTeX compiler found for engine '{engine}'.",
@@ -55,6 +56,7 @@ def compile_project(project: Path, main: str, engine: str, timeout: int) -> dict
     log_path.write_text(output, encoding="utf-8", errors="ignore")
     return {
         "success": code == 0,
+        "environment_blocker": False,
         "return_code": code,
         "command": command,
         "log_path": str(log_path),
